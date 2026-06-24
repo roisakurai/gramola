@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <title>Gramola</title>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <video
+    id="bgVideo"
+    class="video-background"
+    autoplay
+    muted
+    playsinline
+    preload="auto"
+    loop
+    controlslist="nodownload nofullscreen noremoteplayback"
+    disablepictureinpicture
+    oncontextmenu="return false;"
+  >
+    <source src="assets/background-video/From Klickpin.com- Use these 35 Elegant bathroom storage solutions that make everyday moments look more intentional memorable and beautifully styl.mp4" type="video/mp4" />
+  </video>
+
+  <div id="vinylContainer" class="vinyl-container snap-left">
+    <img
+      id="vinyl"
+      src="assets/vinyl/default_vinyl.png"
+      alt="Vinyl"
+      draggable="false"
+    />
+    
+    <div class="nav-menu">
+      <button class="nav-btn btn-1" data-label="Gramola" style="z-index: 1;"><img src="assets/icons/gramola.svg" alt=""></button>
+      <button class="nav-btn btn-2" data-label="Home"><img src="assets/icons/home.svg" alt=""></button>
+      <button class="nav-btn btn-3" data-label="Library"><img src="assets/icons/library.svg" alt=""></button>
+      <button class="nav-btn btn-4" data-label="Search"><img src="assets/icons/search.svg" alt=""></button>
+      <button class="nav-btn btn-5" data-label="Create Playlist"><img src="assets/icons/add.svg" alt=""></button>
+      <button class="nav-btn btn-6" data-label="Upload Songs"><img src="assets/icons/upload songs.svg" alt=""></button>
+      <button class="nav-btn btn-7" data-label="greyjeno"><img src="assets/icons/profile_olivia.jpeg" alt=""></button>
+    </div>
+  </div> 
+  
+  <div class="music-player-wrapper">
+    <div class="player-handle">
+      <img src="assets/icons/up arrow.svg" alt="^"> 
+    </div>
+    
+    <div class="music-player">
+      
+      <div class="player-top">
+        <div class="track-info">
+          <img src="assets/albums/blonde-frank ocean.jpg" alt="Album Art" class="album-art">
+          <div class="track-text">
+            <h3 class="track-title">Self Control</h3>
+            <p class="track-artist">Frank Ocean | Blonde</p>
+          </div>
+        </div>
+
+        <div class="track-controls">
+          <button class="ctrl-btn shuffle-btn"><img src="assets/icons/shuffle.svg" alt="Shuffle"></button>
+          <button class="ctrl-btn prev-btn"><img src="assets/icons/previous.svg" alt="Prev"></button>
+          <button class="ctrl-btn play-btn"><img src="assets/icons/play.svg" alt="Play" id="playIcon"></button>
+          <button class="ctrl-btn next-btn"><img src="assets/icons/next.svg" alt="Next"></button>
+          <button class="ctrl-btn repeat-btn"><img src="assets/icons/repeat.svg" alt="Repeat"></button>
+        </div>
+      </div>
+
+
+      <div class="player-bottom">
+        
+        <div class="progress-wrapper">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-current" style="width: 42%;"></div>
+            </div>
+          </div>
+          
+          <div class="time-info">
+            <span class="time">1:46</span>
+            <span class="time">4:09</span>
+          </div>
+        </div>
+
+        <div class="volume-container">
+          <div class="volume-wheel-panel" id="volumeWheel">
+            <div class="vol-num next2" id="volNext2">68</div>
+            <div class="vol-num active-row">
+              <span class="arrow-left"><img src="assets/icons/selector-arrow-left.svg" alt=""></span>
+              <span id="volCurrent">100</span>
+              <span class="arrow-right"><img src="assets/icons/selector-arrow-right.svg" alt=""></span>
+            </div>
+            <div class="vol-num prev2" id="volPrev2">66</div>
+          </div>
+          <button class="ctrl-btn volume-btn" id="volumeBtn">
+            <img src="assets/icons/volume_normal.svg" alt="Volume" id="volumeIcon">
+          </button>
+        </div>
+
+        
+
+      </div>
+
+    </div>
+  </div> 
+</body>
+</html>
