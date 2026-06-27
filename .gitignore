@@ -1,0 +1,11 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Large Media Assets
+frontend/assets/background-video/
+frontend/assets/covers/
+frontend/assets/songs/

@@ -1,0 +1,389 @@
+/* --- 7. LIBRARY VIEW --- */
+/* ========================================= */
+.library-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(var(--blur-amount)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(150%);
+  z-index: 3;
+  padding: 40px 60px 140px 60px; /* high bottom padding so floating player doesn't block content */
+  box-sizing: border-box;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.03);
+  transition: opacity 0.45s cubic-bezier(0.25, 1, 0.5, 1), transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s ease;
+}
+
+.library-view.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.library-view.blurred-library {
+  filter: blur(8px) brightness(0.6);
+}
+
+/* Scrollbar */
+.library-view::-webkit-scrollbar {
+  width: 6px;
+}
+.library-view::-webkit-scrollbar-track {
+  background: transparent;
+}
+.library-view::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+.library-view::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  margin-top: 20px;
+}
+
+.library-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lib-back-btn {
+  background: none;
+  border: none;
+  opacity: 0.7;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 0;
+}
+
+.lib-back-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.lib-back-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.library-tabs {
+  display: flex;
+  gap: 12px;
+}
+
+.lib-tab {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.2s;
+}
+
+.lib-tab:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.lib-tab.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.library-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.library-search-wrapper {
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+  height: 38px;
+  width: 38px;
+  overflow: hidden;
+  box-sizing: border-box;
+  position: relative;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease;
+}
+
+.library-search-wrapper.active {
+  width: 400px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.library-search-input {
+  flex-grow: 1;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease;
+}
+
+.library-search-wrapper.active .library-search-input {
+  width: 100%;
+  opacity: 1;
+  padding: 0 8px 0 16px;
+  pointer-events: auto;
+}
+
+.library-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.library-clear-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.library-clear-btn img {
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.library-clear-btn:hover img {
+  opacity: 1;
+}
+
+.library-search-wrapper .search-btn {
+  border: none;
+  height: 100%;
+  width: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background: transparent;
+  transition: background-color 0.2s;
+  border-radius: 0 0 14px;
+  flex-shrink: 0;
+}
+
+.library-search-wrapper .search-btn:hover {
+  color: #fff;
+}
+
+.library-search-wrapper .search-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+.lib-action-btn {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.lib-action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.lib-action-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.lib-action-btn:hover img {
+  opacity: 1;
+}
+
+.lib-sort-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 18px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lib-sort-btn span {
+  font-weight: 600;
+}
+
+.lib-sort-btn:hover {
+  color: #fff;
+}
+
+.lib-sort-btn img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
+.lib-sort-btn:hover img {
+  opacity: 1;
+}
+
+/* Grid Layout */
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 32px 20px;
+}
+
+.lib-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto;
+  transition: transform 0.2s ease;
+}
+
+.lib-art-container {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  cursor: pointer;
+  /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); */
+}
+
+.lib-art-container img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.lib-item:hover .lib-art-container img {
+  transform: scale(1.06);
+}
+
+.lib-play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+.lib-play-overlay img {
+  width: 44px !important;
+  height: auto !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.lib-item:hover .lib-play-overlay {
+  opacity: 1;
+}
+
+.lib-title {
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lib-subtitle {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Active Nav Button style indicator for Library menu */
+.nav-btn.active {
+  opacity: 1 !important;
+  background: var(--primary) !important;
+}
+.nav-btn.active img {
+  opacity: 1 !important;
+}
+
+/* Responsive Grid styling */
+@media (max-width: 1100px) {
+  .library-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .library-view {
+    padding: 30px 24px 140px 24px;
+  }
+  .library-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .library-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .library-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 16px;
+  }
+}
+
+/* ========================================= */

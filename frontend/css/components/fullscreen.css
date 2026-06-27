@@ -1,0 +1,535 @@
+/* --- 9. FULLSCREEN PLAYER MODE --- */
+/* ========================================= */
+body.fullscreen-body-active {
+  overflow: hidden !important;
+}
+
+.music-player-wrapper.fullscreen-active {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  transform: none !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.music-player-wrapper.fullscreen-active .player-handle {
+  display: none !important;
+}
+
+.music-player-wrapper.fullscreen-active .music-player {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  padding: 40px 60px !important;
+  background: rgba(10, 10, 10, 0.85) !important; /* dark premium glass backdrop */
+  backdrop-filter: blur(var(--blur-amount)) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(150%) !important;
+  box-sizing: border-box;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.music-player-wrapper.fullscreen-active .expanded-view {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 1 !important;
+  gap: 60px !important;
+  align-items: stretch !important;
+  animation: fadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Fullscreen Left Column (Now Playing + Large Cover Art + Info + Seekbar + Controls + Volume) */
+.music-player-wrapper.fullscreen-active .ex-left {
+  flex: 0 0 420px !important;
+  width: 420px !important;
+  max-width: 45vw !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 20px !important;
+  /* padding-right: 40px !important; */
+  box-sizing: border-box;
+  transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              width 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.music-player-wrapper.fullscreen-active .now-playing-label {
+  align-self: center !important;
+  margin-bottom: 5px !important;
+  margin-left: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: 320px !important;
+  max-width: 100% !important;
+  opacity: 1 !important;
+  max-height: 50px !important;
+  overflow: hidden !important;
+  /* transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              margin-bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; */
+}
+
+.music-player-wrapper.fullscreen-active .large-album-art {
+  width: 320px !important;
+  height: 320px !important;
+  max-width: 100% !important;
+  max-height: 45vh !important;
+  object-fit: cover !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+  transition: transform 0.3s ease;
+}
+
+.music-player-wrapper.fullscreen-active .large-album-art:hover {
+  transform: scale(1.02);
+}
+
+.music-player-wrapper.fullscreen-active .large-track-info {
+  text-align: center !important;
+  margin-top: 5px !important;
+  width: 93% !important;
+}
+
+.music-player-wrapper.fullscreen-active .large-title-wrapper h3 {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: var(--text-main) !important;
+  margin-bottom: 4px !important;
+}
+
+.music-player-wrapper.fullscreen-active .large-artist-wrapper p {
+  font-size: 15px !important;
+  color: var(--text-muted) !important;
+}
+
+/* Fullscreen Seekbar styling */
+.music-player-wrapper.fullscreen-active .ex-seekbar-container {
+  width: 390px !important;
+  max-width: 390px !important;
+  margin: 10px 0 0 0 !important;
+}
+
+/* Fullscreen Controls row */
+.music-player-wrapper.fullscreen-active .ex-controls {
+  width: 390px !important;
+  max-width: 390px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 5px !important;
+}
+
+.music-player-wrapper.fullscreen-active .ctrl-buttons-main {
+  transform: none !important;
+  gap: 20px !important;
+}
+
+/* Fullscreen Horizontal Volume panel */
+.music-player-wrapper.fullscreen-active .ex-volume-panel {
+  display: flex !important;
+  width: 390px !important;
+  max-width: 390px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin-top: 15px !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-volume-label {
+  display: none !important; /* Hide Volume label */
+}
+
+.music-player-wrapper.fullscreen-active .ex-volume-scroll {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  height: 40px !important;
+  width: 100% !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-vol-wheel {
+  flex-direction: row-reverse !important; /* Invert layout so lower volume is left, higher is right */
+  height: 40px !important;
+  width: 240px !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  cursor: pointer !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-vol-num {
+  font-size: 13px !important;
+  width: 36px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-vol-num.active-row {
+  font-size: 18px !important;
+  color: var(--text-main) !important;
+  width: 36px !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+/* Vertical indicator arrows in active horizontal row */
+.music-player-wrapper.fullscreen-active .ex-arrow-left,
+.music-player-wrapper.fullscreen-active .ex-arrow-right {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) rotate(-90deg) !important; /* Rotate selector arrows */
+}
+
+.music-player-wrapper.fullscreen-active .ex-arrow-left {
+  top: -12px !important;
+  bottom: auto !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-arrow-right {
+  bottom: -12px !important;
+  top: auto !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-arrow-left img,
+.music-player-wrapper.fullscreen-active .ex-arrow-right img {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+/* Flanking volume icons */
+.ex-vol-icon-left, .ex-vol-icon-right {
+  display: none;
+}
+
+.music-player-wrapper.fullscreen-active .ex-vol-icon-left,
+.music-player-wrapper.fullscreen-active .ex-vol-icon-right {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-vol-icon-left img,
+.music-player-wrapper.fullscreen-active .ex-vol-icon-right img {
+  width: 18px !important;
+  height: 18px !important;
+  opacity: 0.6 !important;
+}
+
+/* Fullscreen Right Column (Queue List) */
+.music-player-wrapper.fullscreen-active .ex-right {
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  width: calc(100% - 480px) !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  /* gap: 20px !important; */
+  min-width: 0 !important;
+  justify-content: center !important;
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  z-index: 5 !important;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+              opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.music-player-wrapper.fullscreen-active .queue-header {
+  height: 32px !important;
+  line-height: 32px !important;
+  margin-bottom: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.music-player-wrapper.fullscreen-active .queue-header h3 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  margin: 0 !important;
+}
+
+.music-player-wrapper.fullscreen-active .queue-list {
+  flex-grow: 1 !important;
+  max-height: calc(100vh - 180px) !important;
+  height: 660px;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  padding-right: 12px !important;
+}
+
+.music-player-wrapper.fullscreen-active .ex-content-row {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+/* Hide original bottom row and compact toggle when in fullscreen */
+.music-player-wrapper.fullscreen-active .ex-bottom,
+.music-player-wrapper.fullscreen-active .ex-volume-btn-container {
+  display: none !important;
+}
+
+/* Fullscreen header buttons */
+.queue-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.music-player-wrapper.fullscreen-active .queue-header-buttons {
+    position: absolute !important;
+    /* top: 55px !important; */
+    right: 8px !important;
+    /* height: 32px !important; */
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  z-index: 10000 !important;
+}
+
+#exitFsBtn, #collapseFsBtn {
+  display: none !important;
+}
+
+.music-player-wrapper.fullscreen-active #exFsToggleBtn {
+  display: none !important;
+}
+
+.music-player-wrapper.fullscreen-active #exitFsBtn,
+.music-player-wrapper.fullscreen-active #collapseFsBtn {
+  display: inline-flex !important;
+}
+
+/* Queue Number styles */
+.queue-number {
+  display: none;
+}
+
+.music-player-wrapper.fullscreen-active .queue-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+/* Dynamic queue hiding and cover centering styles */
+.music-player-wrapper.fullscreen-active.hide-queue .ex-right {
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.music-player-wrapper.fullscreen-active.hide-queue .ex-left {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-right: 0 !important;
+  border-right: none !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.music-player-wrapper.fullscreen-active.hide-queue .now-playing-label {
+  opacity: 0 !important;
+  max-height: 0px !important;
+  margin-bottom: 0px !important;
+  pointer-events: none !important;
+}
+
+.music-player-wrapper.fullscreen-active.hide-queue .music-player {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(10, 10, 10, 0.5) !important;
+}
+
+/* Keep Vinyl Container z-index on top of fullscreen overlay */
+.vinyl-container {
+  z-index: 100000 !important;
+}
+
+/* Grab/drag cursor styling for active volume number in ex-volume-wheel */
+#exVolCurrent {
+  cursor: grab !important;
+}
+#exVolCurrent:active {
+  cursor: grabbing !important;
+}
+
+.vol-num.active-row {
+    cursor: grab !important;
+}
+
+.vol-num.active-row:active {
+  cursor: grabbing !important;
+}
+
+/* Root CSS variables for resizable columns */
+:root {
+  --col-title-width: 360px;
+  --col-total-width: 820px;
+}
+
+/* Style for queue-album (hidden by default, shown in fullscreen) */
+.queue-album {
+  display: none;
+}
+
+.music-player-wrapper.fullscreen-active .queue-album {
+  display: block !important;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 5px !important;
+  box-sizing: border-box !important;
+}
+
+.music-player-wrapper.fullscreen-active .queue-item {
+  display: grid !important;
+  grid-template-columns: 24px 46px var(--col-title-width) calc(var(--col-total-width) - var(--col-title-width)) 1fr !important;
+  column-gap: 16px !important;
+  padding: 4px 12px !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 54px !important;
+}
+
+/* Fixed width queue number in fullscreen so elements are perfectly aligned */
+.music-player-wrapper.fullscreen-active .queue-number {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  margin-right: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.music-player-wrapper.fullscreen-active .queue-info {
+  flex: none !important;
+  width: 100% !important;
+}
+
+.music-player-wrapper.fullscreen-active .queue-time {
+  grid-column: 5 !important;
+  justify-self: end !important;
+  width: 80px !important;
+  text-align: center !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Sub-header styles for fullscreen mode */
+.queue-subheader {
+  display: none;
+}
+
+.music-player-wrapper.fullscreen-active .queue-subheader {
+  display: grid !important;
+  grid-template-columns: 24px 46px var(--col-title-width) calc(var(--col-total-width) - var(--col-title-width)) 1fr !important;
+  column-gap: 16px !important;
+  padding: 8px 30px 8px 12px !important;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  box-sizing: border-box;
+  width: 100% !important;
+  position: relative !important;
+  align-items: center !important;
+  user-select: none;
+}
+
+.queue-subheader .sub-col {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queue-subheader .sub-col-title {
+  grid-column: 2 / 4 !important; /* spans art container and track info */
+  padding-left: 0;
+  box-sizing: border-box;
+}
+
+.queue-subheader .sub-col-album {
+  grid-column: 4 !important;
+  padding-left: 5px;
+  box-sizing: border-box;
+}
+
+.queue-subheader .sub-col-time {
+  grid-column: 5 !important;
+  justify-self: end !important;
+  width: 80px !important;
+  text-align: center !important;
+}
+
+/* Splitters / separators positioned centered inside the grid gaps */
+.queue-subheader .sub-divider {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 10 !important;
+  cursor: col-resize !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  padding: 0 10px !important;
+  font-weight: bold !important;
+  transition: color 0.2s, text-shadow 0.2s !important;
+  user-select: none !important;
+}
+
+#dividerAlbum {
+  left: calc(110px + var(--col-title-width)) !important;
+}
+
+#dividerTime {
+  left: calc(126px + var(--col-total-width)) !important;
+}
+
+.queue-subheader .sub-divider:hover {
+  color: var(--primary) !important;
+  text-shadow: 0 0 8px var(--primary) !important;
+}
+
+/* Fullscreen Hover Queue Actions alignment */
+.music-player-wrapper.fullscreen-active .queue-item:hover .queue-actions {
+  display: inline-flex !important;
+  grid-column: 5 !important;
+  justify-self: end !important;
+  width: 80px !important;
+  justify-content: center !important;
+}

@@ -1,0 +1,17 @@
+/* --- 6. RESPONSIVE MOBILE --- */
+/* ========================================= */
+@media (max-width: 768px) {
+  .vinyl-container { left: -80px; top: calc(50% - 80px); }
+  .vinyl-container img { width: 160px; height: 160px; }
+  .nav-btn { width: 40px; height: 40px; margin: -20px 0 0 -20px; }
+  .nav-btn img { width: 16px; height: 16px; }
+  .btn-1 img { width: 22px; } .btn-3 img { width: 18px; } .btn-6 img { width: 18px; }
+  .nav-btn::after { font-size: 13px; }
+
+  .snap-left.active .btn-1 { --tx: 26px; --ty: -120px; } .snap-left.active .btn-2 { --tx: 73px; --ty: -90px; } .snap-left.active .btn-3 { --tx: 103px; --ty: -46px; } .snap-left.active .btn-4 { --tx: 120px; --ty: 0px; } .snap-left.active .btn-5 { --tx: 103px; --ty: 46px; } .snap-left.active .btn-6 { --tx: 73px; --ty: 90px; } .snap-left.active .btn-7 { --tx: 26px; --ty: 120px; }
+  .snap-right.active .btn-1 { --tx: -26px; --ty: -120px; } .snap-right.active .btn-2 { --tx: -73px; --ty: -90px; } .snap-right.active .btn-3 { --tx: -103px; --ty: -46px; } .snap-right.active .btn-4 { --tx: -120px; --ty: 0px; } .snap-right.active .btn-5 { --tx: -103px; --ty: 46px; } .snap-right.active .btn-6 { --tx: -73px; --ty: 90px; } .snap-right.active .btn-7 { --tx: -26px; --ty: 120px; }
+  .snap-top.active .btn-1 { --tx: -120px; --ty: 26px; } .snap-top.active .btn-2 { --tx: -90px; --ty: 73px; } .snap-top.active .btn-3 { --tx: -46px; --ty: 103px; } .snap-top.active .btn-4 { --tx: 0px; --ty: 120px; } .snap-top.active .btn-5 { --tx: 46px; --ty: 103px; } .snap-top.active .btn-6 { --tx: 90px; --ty: 73px; } .snap-top.active .btn-7 { --tx: 120px; --ty: 26px; }
+  .snap-bottom.active .btn-1 { --tx: -120px; --ty: -26px; } .snap-bottom.active .btn-2 { --tx: -90px; --ty: -73px; } .snap-bottom.active .btn-3 { --tx: -46px; --ty: -103px; } .snap-bottom.active .btn-4 { --tx: 0px; --ty: -120px; } .snap-bottom.active .btn-5 { --tx: 46px; --ty: -103px; } .snap-bottom.active .btn-6 { --tx: 90px; --ty: -73px; } .snap-bottom.active .btn-7 { --tx: 120px; --ty: -26px; }
+}
+
+/* ========================================= */

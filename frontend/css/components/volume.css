@@ -1,0 +1,52 @@
+/* --- 5. VOLUME WHEEL --- */
+/* ========================================= */
+.volume-container { position: relative; display: flex; flex-direction: column; align-items: center; }
+.volume-btn { width: 30px; height: 30px; margin-left: 0; padding: 6px; align-self: flex-start; transform: translateY(-2px); }
+.volume-btn:active { transform: translateY(-2px) scale(0.9); }
+.volume-btn img { width: 18px; height: 18px; }
+
+.volume-wheel-panel {
+  position: absolute; bottom: 45px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; opacity: 0; pointer-events: none; transform: translateY(7px);
+  transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  user-select: none; z-index: 50; cursor: pointer; 
+  width: 60px;
+}
+.volume-wheel-panel.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+.vol-num { 
+  font-size: 11px; 
+  color: rgba(255, 255, 255, 0.4); 
+  font-weight: 600; 
+  width: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.vol-num.active-row { font-size: 16px; color: var(--text-main); display: flex; align-items: center; justify-content: center; position: relative; width: 100%; height: 20px; }
+#volCurrent { min-width: 28px; text-align: center; display: inline-block; font-weight: 600; }
+.vol-num.next2, .vol-num.prev2 { height: 14px; display: flex; align-items: center; justify-content: center; width: 100%; }
+
+.arrow-left, .arrow-right { display: flex; align-items: center; justify-content: center; position: absolute; top: 50%; transform: translateY(-50%); }
+.arrow-left { left: 4px; }
+.arrow-right { right: 4px; }
+
+/* Compact View Volume Button active states */
+.compact-view .volume-btn.active-v { background: var(--primary) !important; opacity: 1 !important; transform: translateY(-2px) scale(1.05) !important; }
+.compact-view .volume-btn.active-v:hover { transform: translateY(-2px) scale(1.08) !important; }
+.compact-view .volume-btn.active-v:active,
+.compact-view .volume-btn.active-v:hover:active { transform: translateY(-2px) scale(0.95) !important; }
+.compact-view .volume-btn.active-v img { opacity: 1; }
+
+/* Expanded View Volume Button active/click states */
+.ex-controls .volume-btn.active-v { background: var(--primary) !important; opacity: 1 !important; transform: scale(1.05) !important; }
+.ex-controls .volume-btn.active-v:hover { transform: scale(1.08) !important; }
+.ex-controls .volume-btn.active-v:active,
+.ex-controls .volume-btn.active-v:hover:active { transform: scale(0.95) !important; }
+.ex-controls .volume-btn:active { transform: scale(0.9) !important; }
+.ex-controls .volume-btn.active-v img { opacity: 1; }
+.compact-view .volume-btn img[src*="volume_mute"] { width: 14px !important; height: 14px !important; transition: width 0.2s ease, height 0.2s ease; }
+.ex-controls .volume-btn img[src*="volume_mute"] { width: 20px !important; height: 20px !important; transition: width 0.2s ease, height 0.2s ease; }
+
+/* ========================================= */

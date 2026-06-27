@@ -1,0 +1,18 @@
+/* --- 2. BACKGROUND VIDEO --- */
+/* ========================================= */
+.video-background {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; 
+  z-index: 0;
+  pointer-events: none;
+  transition: filter 0.5s ease, transform 0.5s ease; 
+}
+
+.video-background.blurred {
+  filter: blur(var(--blur-amount)) brightness(0.7);
+  transform: scale(1.05);
+}
+
+/* ========================================= */
