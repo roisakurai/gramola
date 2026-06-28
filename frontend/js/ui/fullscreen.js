@@ -71,6 +71,28 @@ export function initFullscreen(recalculateAllMarquees) {
       }
       if (globalSearchClearBtn) globalSearchClearBtn.style.display = "none";
       if (globalSearchResultsWrapper) globalSearchResultsWrapper.style.display = "none";
+
+      // Close library view if open
+      const libraryView = document.getElementById("libraryView");
+      const libraryBtn = document.querySelector(".nav-btn.btn-2");
+      if (libraryView) {
+        libraryView.classList.remove("show");
+        libraryView.classList.remove("blurred-library");
+      }
+      if (libraryBtn) {
+        libraryBtn.classList.remove("active");
+      }
+
+      // Close vinyl active state if open
+      const vinylContainer = document.getElementById("vinylContainer");
+      if (vinylContainer) {
+        vinylContainer.classList.remove("active");
+      }
+      const bgVideo = document.getElementById("bgVideo");
+      if (bgVideo) {
+        bgVideo.classList.remove("blurred");
+      }
+      UI.playerWrapper.classList.remove("blurred-player");
       
       // Move controls and seekbar to left panel
       if (exLeft) {
@@ -140,7 +162,7 @@ export function initFullscreen(recalculateAllMarquees) {
       
       const collapseImg = collapseFsBtn.querySelector('img');
       if (collapseImg) {
-        collapseImg.src = isHidden ? 'assets/icons/up arrow.svg' : 'assets/icons/arrow_down.svg';
+        collapseImg.src = isHidden ? 'assets/icons/arrow_up.svg' : 'assets/icons/arrow_down.svg';
       }
 
       if (typeof recalculateAllMarquees === 'function') {

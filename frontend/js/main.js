@@ -3,12 +3,20 @@ import { initVinyl } from './ui/vinyl.js';
 import { initVolume } from './ui/volume.js';
 import { initPlayer } from './core/player.js'; 
 import { initLibrary } from './ui/library.js';
+import { initUpload } from './ui/upload.js';
 import { initRandomAssets } from './utils/randomAssets.js';
 
-document.addEventListener("DOMContentLoaded", () => {
+function startApp() {
   initVinyl();
   initVolume();
   initPlayer();
   initLibrary();
+  initUpload();
   initRandomAssets();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startApp);
+} else {
+  startApp();
+}

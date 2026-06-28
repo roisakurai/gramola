@@ -263,16 +263,16 @@ body.fullscreen-body-active {
 }
 
 .music-player-wrapper.fullscreen-active .queue-header {
-  height: 32px !important;
+  /* height: 32px !important; */
   line-height: 32px !important;
-  margin-bottom: 10px !important;
+  /* margin-bottom: 10px !important; */
   display: flex !important;
   align-items: center !important;
 }
 
 .music-player-wrapper.fullscreen-active .queue-header h3 {
   font-size: 20px !important;
-  font-weight: 700 !important;
+  /* font-weight: 700 !important; */
   height: 32px !important;
   line-height: 32px !important;
   margin: 0 !important;
@@ -280,8 +280,8 @@ body.fullscreen-body-active {
 
 .music-player-wrapper.fullscreen-active .queue-list {
   flex-grow: 1 !important;
-  max-height: calc(100vh - 180px) !important;
-  height: 660px;
+  max-height: 594px !important;
+  height: 594px !important;
   overflow-y: scroll !important;
   overflow-x: hidden !important;
   padding-right: 12px !important;
@@ -530,6 +530,6 @@ body.fullscreen-body-active {
   display: inline-flex !important;
   grid-column: 5 !important;
   justify-self: end !important;
-  width: 80px !important;
+  width: 96px !important;
   justify-content: center !important;
 }

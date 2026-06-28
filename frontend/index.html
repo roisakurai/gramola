@@ -82,9 +82,59 @@
     </div>
   </div>
 
+  <!-- Upload Songs Overlay -->
+  <div id="uploadOverlay" class="upload-overlay">
+    <button class="upload-close-btn" id="uploadCloseBtn">&times;</button>
+    <div class="upload-container" id="uploadContainer">
+      <div class="upload-box" id="uploadBox">
+        <div class="upload-left">
+          <img src="assets/icons/upload_vinyl.png" alt="Upload Vinyl" class="upload-vinyl-icon">
+        </div>
+        <div class="upload-right">
+          <span class="upload-title">Drag your songs here</span>
+          <span class="upload-subtitle">.mp3 wav</span>
+          <button class="upload-select-btn" id="uploadSelectBtn">Select Files</button>
+          <input type="file" id="uploadFileInput" accept=".mp3, .wav" multiple style="display: none;">
+        </div>
+      </div>
+
+      <!-- Tracklist (hidden initially) -->
+      <div class="upload-tracklist-container" id="uploadTracklistContainer" style="display: none;">
+        <h3 class="upload-tracklist-title">Tracklist</h3>
+        <div class="upload-tracklist-headers">
+          <span></span>
+          <span class="header-title" style="grid-column: span 2; text-align: left;">Title</span>
+          <span class="header-time" style="text-align: right;">Time</span>
+          <button class="upload-delete-all-btn" id="uploadDeleteAllBtn" title="Delete All">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 11h14v2H5z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="upload-track-list" id="uploadTrackList">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="upload-actions-footer">
+          <button class="upload-submit-btn" id="uploadSubmitBtn">Upload</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Quit Confirmation Dialog -->
+  <div id="uploadConfirmOverlay" class="upload-confirm-overlay" style="display: none;">
+    <div class="upload-confirm-box">
+      <h4 class="upload-confirm-title">Are you sure you want to quit?</h4>
+      <p class="upload-confirm-desc">Your uploaded tracks will not be saved.</p>
+      <div class="upload-confirm-buttons">
+        <button class="upload-confirm-btn cancel" id="uploadConfirmCancelBtn">Cancel</button>
+        <button class="upload-confirm-btn quit" id="uploadConfirmQuitBtn">Quit</button>
+      </div>
+    </div>
+  </div>
+
   <div class="music-player-wrapper">
     <div class="player-handle">
-      <img src="assets/icons/up arrow.svg" alt="^" class="chevron-icon"> 
+      <img src="assets/icons/arrow_up_player_handle.svg" alt="^" class="chevron-icon"> 
     </div>
     
     <div class="music-player">
@@ -165,8 +215,11 @@
         </div>
 
         <div class="ex-right">
+          
           <div class="queue-header">
-            <h3>Next From : in peace (or anxious)</h3>
+            
+            <h3 id="queueHeaderTitle">Next From : in peace (or anxious)</h3>
+    
             <div class="queue-header-buttons">
               <button class="icon-btn" id="exFsToggleBtn" title="Full Screen"><img src="assets/icons/fullscreen.svg" alt="FS"></button>
               <button class="icon-btn collapse-fs-btn" id="collapseFsBtn" title="Collapse Player"><img src="assets/icons/arrow_down.svg" alt="Collapse"></button>
@@ -382,6 +435,25 @@
     </div>
   </div>
   
+  <!-- Upload Progress Box + Toast Stack (same top-right region) -->
+  <div class="upload-progress-region" id="uploadProgressRegion">
+    <!-- Upload progress box (shown during active server upload simulation) -->
+    <div class="upload-progress-box" id="uploadProgressBox" style="display:none;">
+      <div class="upb-top-row">
+        <span class="upb-title" id="upbTitle">Uploading 0/0 songs</span>
+        <span class="upb-size" id="upbSize">0 MB</span>
+      </div>
+      <div class="upb-mid-row">
+        <span class="upb-percent" id="upbPercent">0%</span>
+        <span class="upb-time" id="upbTime">Calculating...</span>
+      </div>
+      <div class="upb-bar-track">
+        <div class="upb-bar-fill" id="upbBarFill"></div>
+      </div>
+    </div>
+    <!-- Toast notifications stack below the progress box -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
 
 </body>
 </html>

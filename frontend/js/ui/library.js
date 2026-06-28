@@ -1,3 +1,5 @@
+import { CONFIG } from '../utils/config.js';
+
 let LIBRARY_DATA = [];
 let songsDb = [];
 let activeTab = "all";
@@ -241,12 +243,14 @@ export function initLibrary() {
           const playerWrapper = document.querySelector(".music-player-wrapper");
           if (playerWrapper) playerWrapper.classList.remove("blurred-player");
         }
-        const libraryView = document.getElementById("libraryView");
         if (libraryView) {
           libraryView.classList.remove("blurred-library");
         }
         if (!btn.classList.contains("btn-4")) {
           closeGlobalSearch();
+        }
+        if (typeof window.closeUploadMenu === "function" && !btn.classList.contains("btn-6")) {
+          window.closeUploadMenu();
         }
       });
     });
@@ -407,44 +411,74 @@ export function initLibrary() {
   }
 
   // Initial render
-  fetch('songs.json')
-    .then(res => res.json())
-    .then(data => {
-      songsDb = data;
-      buildLibraryData();
-      updateLibrary();
-    })
-    .catch(err => {
-      console.error("Error loading library songs:", err);
-      songsDb = [
-        {
-          "file": "Self Control_spotdown.org.mp3",
-          "title": "Self Control",
-          "artist": "Frank Ocean",
-          "album": "Blonde",
-          "duration": 249,
-          "cover": "assets/albums/blonde-frank ocean.jpg"
-        },
-        {
-          "file": "Disenchanted_spotdown.org.mp3",
-          "title": "Disenchanted",
-          "artist": "My Chemical Romance",
-          "album": "The Black Parade",
-          "duration": 289,
-          "cover": "assets/covers/Disenchanted_spotdown_org_mp3.jpg"
-        },
-        {
-          "file": "Nights_spotdown.org.mp3",
-          "title": "Nights",
-          "artist": "Frank Ocean",
-          "album": "Blonde",
-          "duration": 307,
-          "cover": "assets/covers/Nights_spotdown_org_mp3.jpg"
-        }
-      ];
-      buildLibraryData();
-      updateLibrary();
-    });
+  function initLibraryList(data) {
+    songsDb = data.map(song => ({
+      file: song.audio_url || song.file,
+      title: song.title,
+      artist: song.artist,
+      album: song.album || "Unknown Album",
+      duration: song.duration,
+      cover: song.cover_url || song.cover || "assets/vinyl/default_vinyl.png"
+    }));
+    buildLibraryData();
+    updateLibrary();
+  }
+
+  function loadLibrarySongs() {
+    fetch(`${CONFIG.apiBaseUrl}/songs`)
+      .then(res => {
+        if (!res.ok) throw new Error("Backend response not ok");
+        return res.json();
+      })
+      .then(data => {
+        console.log("Loaded library songs from backend database successfully!");
+        initLibraryList(data);
+      })
+      .catch(backendErr => {
+        console.warn("Could not connect to backend, falling back to local songs.json for library:", backendErr);
+        fetch('songs.json')
+          .then(res => res.json())
+          .then(data => {
+            initLibraryList(data);
+          })
+          .catch(localErr => {
+            console.error("Error loading local songs.json for library:", localErr);
+            const hardcoded = [
+              {
+                "file": "Self Control_spotdown.org.mp3",
+                "title": "Self Control",
+                "artist": "Frank Ocean",
+                "album": "Blonde",
+                "duration": 249,
+                "cover": "assets/albums/blonde-frank ocean.jpg"
+              },
+              {
+                "file": "Disenchanted_spotdown.org.mp3",
+                "title": "Disenchanted",
+                "artist": "My Chemical Romance",
+                "album": "The Black Parade",
+                "duration": 289,
+                "cover": "assets/covers/Disenchanted_spotdown_org_mp3.jpg"
+              },
+              {
+                "file": "Nights_spotdown.org.mp3",
+                "title": "Nights",
+                "artist": "Frank Ocean",
+                "album": "Blonde",
+                "duration": 307,
+                "cover": "assets/covers/Nights_spotdown_org_mp3.jpg"
+              }
+            ];
+            initLibraryList(hardcoded);
+          });
+      });
+  }
+
+  // Load initially
+  loadLibrarySongs();
+
+  // Expose function globally to update UI after uploads
+  window.loadLibrarySongs = loadLibrarySongs;
 
   // --- GLOBAL SEARCH LOGIC ---
   const globalSearchBtn = document.querySelector(".nav-btn.btn-4");
@@ -621,6 +655,26 @@ export function initLibrary() {
             const img = loveBtn.querySelector("img");
             if (img) {
               img.src = liked ? "assets/icons/love.svg" : "assets/icons/love_outline.svg";
+            }
+            if (liked && window.Player && typeof window.Player.showToast === "function") {
+              window.Player.showToast("Added to Favorite Songs");
+            }
+          });
+        }
+
+        // Event: Add to queue button click
+        const addBtn = itemEl.querySelector(".add-btn");
+        if (addBtn) {
+          addBtn.addEventListener("click", (evt) => {
+            evt.stopPropagation();
+            if (window.Player && typeof window.Player.addToQueue === "function") {
+              if (isSong) {
+                window.Player.addToQueue(item.rawSong);
+              } else if (item.type === "album" && item.albumSongs) {
+                item.albumSongs.forEach(song => window.Player.addToQueue(song));
+              } else if (item.type === "playlist" && item.playlistSongs) {
+                item.playlistSongs.forEach(song => window.Player.addToQueue(song));
+              }
             }
           });
         }
