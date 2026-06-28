@@ -32,22 +32,31 @@
 
 .upload-close-btn {
   position: absolute;
-  top: 24px;
-  right: 24px;
+  top: 40px;
+  right: 60px;
   background: transparent;
   border: none;
-  color: white;
-  font-size: 32px;
-  font-weight: 300;
   cursor: pointer;
   opacity: 0.7;
   transition: opacity 0.2s, transform 0.2s;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  z-index: 10020;
 }
 
 .upload-close-btn:hover {
   opacity: 1;
   transform: scale(1.1);
+}
+
+.upload-close-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .upload-container {

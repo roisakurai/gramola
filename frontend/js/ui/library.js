@@ -679,6 +679,14 @@ export function initLibrary() {
           });
         }
 
+        // Stop dblclick propagation on action buttons to prevent playing the song on double click
+        const actionBtns = itemEl.querySelectorAll('.action-btn');
+        actionBtns.forEach(btn => {
+          btn.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+          });
+        });
+
         globalSearchResults.appendChild(itemEl);
       });
     });

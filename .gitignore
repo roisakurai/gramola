@@ -11,3 +11,6 @@ node_modules/
 frontend/assets/background-video/
 frontend/assets/covers/
 frontend/assets/songs/
+
+# Unused Scripts
+scripts/

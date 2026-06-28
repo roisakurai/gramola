@@ -329,6 +329,10 @@ body.fullscreen-body-active {
   display: inline-flex !important;
 }
 
+.music-player-wrapper.fullscreen-active .queue-section-header {
+  font-size: 20px !important;
+}
+
 /* Queue Number styles */
 .queue-number {
   display: none;

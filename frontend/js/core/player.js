@@ -480,8 +480,11 @@ export function initPlayer() {
     }
 
     if (currentQueue.length === 0) return;
-    if (audio.currentTime > 3) {
+    if (audio.currentTime > 2) {
       audio.currentTime = 0;
+      if (audio.duration) {
+        updateProgressUI(0, 0, audio.duration);
+      }
       return;
     }
     
@@ -636,7 +639,6 @@ export function initPlayer() {
         }
       });
     }
-
     const addBtn = item.querySelector('.add-btn');
     if (addBtn) {
       addBtn.addEventListener('click', (e) => {
@@ -644,6 +646,14 @@ export function initPlayer() {
         addToQueue(track);
       });
     }
+
+    // Stop dblclick propagation on action buttons to prevent playing the song on double click
+    const actionBtns = item.querySelectorAll('.action-btn');
+    actionBtns.forEach(btn => {
+      btn.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+      });
+    });
     
     return item;
   }
