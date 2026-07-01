@@ -6,6 +6,9 @@ export function initFullscreen(recalculateAllMarquees) {
   const exitFsBtn = document.getElementById('exitFsBtn');
   const collapseFsBtn = document.getElementById('collapseFsBtn');
   
+  let wasLibraryOpen = false;
+  let wasLibraryBtnActive = false;
+
   const exLeft = document.querySelector('.ex-left');
   const exContentRow = document.querySelector('.ex-content-row');
   const exBottom = document.querySelector('.ex-bottom');
@@ -22,11 +25,11 @@ export function initFullscreen(recalculateAllMarquees) {
     const containerWidth = container.clientWidth;
     if (containerWidth <= 0) return;
     
-    // let titleWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--col-title-width') || '250');
-    // let totalWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--col-total-width') || '450');
+    let titleWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--col-title-width') || '250');
+    let totalWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--col-total-width') || '450');
     
-    // Reserve at least 260px for gaps, number, art, and min duration width (100px)
-    const maxTotal = containerWidth - 260;
+    // Reserve at least 280px for gaps, number, art, and min duration width (100px)
+    const maxTotal = containerWidth - 280;
     
     if (totalWidth > maxTotal) {
       totalWidth = Math.max(250, maxTotal);
@@ -50,7 +53,11 @@ export function initFullscreen(recalculateAllMarquees) {
     if (!UI.playerWrapper) return;
     
     if (active) {
+      UI.playerWrapper.classList.add('transitioning-fullscreen');
       UI.playerWrapper.classList.add('fullscreen-active');
+      setTimeout(() => {
+        UI.playerWrapper.classList.remove('transitioning-fullscreen');
+      }, 500);
       document.body.classList.add('fullscreen-body-active');
       setTimeout(adjustColumnsToFit, 50);
       setTimeout(adjustColumnsToFit, 150);
@@ -62,7 +69,7 @@ export function initFullscreen(recalculateAllMarquees) {
       const globalSearchInput = document.getElementById("globalSearchInput");
       const globalSearchClearBtn = document.getElementById("globalSearchClearBtn");
       const globalSearchResultsWrapper = document.getElementById("globalSearchResultsWrapper");
-
+ 
       if (globalSearchOverlay) globalSearchOverlay.classList.remove("show");
       if (globalSearchBtn) globalSearchBtn.classList.remove("active");
       if (globalSearchInput) {
@@ -71,10 +78,13 @@ export function initFullscreen(recalculateAllMarquees) {
       }
       if (globalSearchClearBtn) globalSearchClearBtn.style.display = "none";
       if (globalSearchResultsWrapper) globalSearchResultsWrapper.style.display = "none";
-
-      // Close library view if open
+ 
+      // Save state and close library view if open
       const libraryView = document.getElementById("libraryView");
       const libraryBtn = document.querySelector(".nav-btn.btn-2");
+      wasLibraryOpen = libraryView && libraryView.classList.contains("show");
+      wasLibraryBtnActive = libraryBtn && libraryBtn.classList.contains("active");
+
       if (libraryView) {
         libraryView.classList.remove("show");
         libraryView.classList.remove("blurred-library");
@@ -82,7 +92,7 @@ export function initFullscreen(recalculateAllMarquees) {
       if (libraryBtn) {
         libraryBtn.classList.remove("active");
       }
-
+ 
       // Close vinyl active state if open
       const vinylContainer = document.getElementById("vinylContainer");
       if (vinylContainer) {
@@ -100,16 +110,32 @@ export function initFullscreen(recalculateAllMarquees) {
         if (exControls) exLeft.appendChild(exControls);
         if (exVolumePanel) exLeft.appendChild(exVolumePanel);
       }
-
+ 
       // Move buttons out of ex-right to expanded-view wrapper so they stay visible when queue is hidden
       if (expandedView && queueHeaderButtons) {
         expandedView.appendChild(queueHeaderButtons);
       }
     } else {
+      UI.playerWrapper.classList.add('transitioning-fullscreen');
       UI.playerWrapper.classList.remove('fullscreen-active');
+      setTimeout(() => {
+        UI.playerWrapper.classList.remove('transitioning-fullscreen');
+      }, 500);
       document.body.classList.remove('fullscreen-body-active');
       UI.playerWrapper.classList.remove('hide-queue');
       
+      // Restore library view state if it was previously open
+      if (wasLibraryOpen) {
+        const libraryView = document.getElementById("libraryView");
+        const libraryBtn = document.querySelector(".nav-btn.btn-2");
+        if (libraryView) {
+          libraryView.classList.add("show");
+        }
+        if (libraryBtn) {
+          libraryBtn.classList.add("active");
+        }
+      }
+
       // Reset collapse icon back to arrow_down.svg
       if (collapseFsBtn) {
         const collapseImg = collapseFsBtn.querySelector('img');
@@ -117,7 +143,7 @@ export function initFullscreen(recalculateAllMarquees) {
           collapseImg.src = 'assets/icons/arrow_down.svg';
         }
       }
-
+ 
       // Move buttons back inside queue-header
       if (queueHeader && queueHeaderButtons) {
         queueHeader.appendChild(queueHeaderButtons);

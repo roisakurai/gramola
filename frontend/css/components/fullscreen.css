@@ -15,10 +15,16 @@ body.fullscreen-body-active {
   transform: none !important;
   bottom: 0 !important;
   margin: 0 !important;
-  z-index: 9999 !important;
+  z-index: 20050 !important;
   border-radius: 0 !important;
   overflow: hidden !important;
-  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  /* transition: top 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              left 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              width 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              height 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+              border-radius 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; */
 }
 
 .music-player-wrapper.fullscreen-active .player-handle {
@@ -33,6 +39,7 @@ body.fullscreen-body-active {
   background: rgba(10, 10, 10, 0.85) !important; /* dark premium glass backdrop */
   backdrop-filter: blur(var(--blur-amount)) saturate(150%) !important;
   -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(150%) !important;
+  /* transition: none !important; */
   box-sizing: border-box;
   overflow: hidden !important;
   display: flex !important;
@@ -64,12 +71,12 @@ body.fullscreen-body-active {
   flex-direction: column !important;
   justify-content: center !important;
   align-items: center !important;
-  gap: 20px !important;
+  /* gap: 20px !important; */
   /* padding-right: 40px !important; */
   box-sizing: border-box;
-  transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+  /* transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1),
               width 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-              max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+              max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; */
 }
 
 .music-player-wrapper.fullscreen-active .now-playing-label {
@@ -106,21 +113,58 @@ body.fullscreen-body-active {
 }
 
 .music-player-wrapper.fullscreen-active .large-track-info {
-  text-align: center !important;
-  margin-top: 5px !important;
-  width: 93% !important;
+  display: none !important;
 }
 
-.music-player-wrapper.fullscreen-active .large-title-wrapper h3 {
+.music-player-wrapper.fullscreen-active .large-track-info-fullscreen {
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  width: 93% !important;
+  height: 62px;
+  box-sizing: border-box;
+  text-align: center !important;
+  margin-top: 5px !important;
+  /* transition: opacity 0.15s ease-in-out; */
+}
+
+/* .music-player-wrapper.transitioning-fullscreen .large-track-info,
+.music-player-wrapper.transitioning-fullscreen .large-track-info-fullscreen {
+  opacity: 0 !important;
+} */
+
+.music-player-wrapper.fullscreen-active .large-track-info-fullscreen .large-title-wrapper,
+.music-player-wrapper.fullscreen-active .large-track-info-fullscreen .large-artist-wrapper {
+  display: block !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+
+.music-player-wrapper.fullscreen-active .large-track-info-fullscreen .large-title-wrapper h3 {
   font-size: 24px !important;
   font-weight: 700 !important;
   color: var(--text-main) !important;
   margin-bottom: 4px !important;
+  white-space: nowrap !important;
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
-.music-player-wrapper.fullscreen-active .large-artist-wrapper p {
-  font-size: 15px !important;
+.music-player-wrapper.fullscreen-active .large-track-info-fullscreen .large-artist-wrapper p {
+  font-size: 20px !important;
   color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* Fullscreen Seekbar styling */
@@ -252,14 +296,14 @@ body.fullscreen-body-active {
   /* gap: 20px !important; */
   min-width: 0 !important;
   justify-content: center !important;
-  transform: translateY(0) !important;
+  /* transform: translateY(0) !important; */
   opacity: 1 !important;
   pointer-events: auto !important;
   overflow-x: hidden !important;
   overflow-y: hidden !important;
   z-index: 5 !important;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
-              opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  /* transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), 
+              opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important; */
 }
 
 .music-player-wrapper.fullscreen-active .queue-header {
@@ -268,6 +312,7 @@ body.fullscreen-body-active {
   /* margin-bottom: 10px !important; */
   display: flex !important;
   align-items: center !important;
+  margin-left: 50px !important;
 }
 
 .music-player-wrapper.fullscreen-active .queue-header h3 {
@@ -280,9 +325,9 @@ body.fullscreen-body-active {
 
 .music-player-wrapper.fullscreen-active .queue-list {
   flex-grow: 1 !important;
-  max-height: 594px !important;
-  height: 594px !important;
-  overflow-y: scroll !important;
+  max-height: 674px !important;
+  height: 674px !important;
+  overflow-y: auto !important;
   overflow-x: hidden !important;
   padding-right: 12px !important;
 }
@@ -331,6 +376,14 @@ body.fullscreen-body-active {
 
 .music-player-wrapper.fullscreen-active .queue-section-header {
   font-size: 20px !important;
+  margin-left: 50px !important;
+  display: block !important;
+  color: var(--text-main) !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
 }
 
 /* Queue Number styles */
@@ -345,7 +398,7 @@ body.fullscreen-body-active {
   font-size: 14px;
   color: var(--text-muted);
   margin-right: 8px;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /* Dynamic queue hiding and cover centering styles */
@@ -423,14 +476,14 @@ body.fullscreen-body-active {
 }
 
 .music-player-wrapper.fullscreen-active .queue-item {
-  display: grid !important;
-  grid-template-columns: 24px 46px var(--col-title-width) calc(var(--col-total-width) - var(--col-title-width)) 1fr !important;
-  column-gap: 16px !important;
-  padding: 4px 12px !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-  width: 100% !important;
-  height: 54px !important;
+    display: grid !important;
+    grid-template-columns: 24px 46px var(--col-title-width) calc(var(--col-total-width) - var(--col-title-width)) 1fr !important;
+    column-gap: 16px !important;
+    padding: 8px 12px !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    height: 62px !important;
 }
 
 /* Fixed width queue number in fullscreen so elements are perfectly aligned */
@@ -451,7 +504,7 @@ body.fullscreen-body-active {
 .music-player-wrapper.fullscreen-active .queue-time {
   grid-column: 5 !important;
   justify-self: end !important;
-  width: 80px !important;
+  width: 100px !important;
   text-align: center !important;
   color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -468,7 +521,7 @@ body.fullscreen-body-active {
   padding: 8px 30px 8px 12px !important;
   margin-bottom: 8px;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   box-sizing: border-box;
   width: 100% !important;
@@ -498,7 +551,7 @@ body.fullscreen-body-active {
 .queue-subheader .sub-col-time {
   grid-column: 5 !important;
   justify-self: end !important;
-  width: 80px !important;
+  width: 100px !important;
   text-align: center !important;
 }
 
@@ -512,7 +565,7 @@ body.fullscreen-body-active {
   color: rgba(255, 255, 255, 0.3) !important;
   padding: 0 10px !important;
   font-weight: bold !important;
-  transition: color 0.2s, text-shadow 0.2s !important;
+  /* transition: color 0.2s, text-shadow 0.2s !important; */
   user-select: none !important;
 }
 
@@ -534,6 +587,6 @@ body.fullscreen-body-active {
   display: inline-flex !important;
   grid-column: 5 !important;
   justify-self: end !important;
-  width: 96px !important;
+  width: 100px !important;
   justify-content: center !important;
 }

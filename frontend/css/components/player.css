@@ -2,7 +2,7 @@
 /* ========================================= */
 .music-player-wrapper {
   position: fixed; bottom: 20px; left: 50%;
-  transform: translateX(-50%); z-index: 5; 
+  transform: translateX(-50%); z-index: 10020 !important; 
   display: flex; flex-direction: column; align-items: center;
   width: 650px; max-width: 90vw;
   transition: filter 0.4s ease, opacity 0.4s ease, pointer-events 0.4s ease;
@@ -143,3 +143,15 @@
 .time { color: var(--text-muted); font-size: 12px; font-weight: 400; line-height: 1; }
 
 /* ========================================= */
+
+/* Clickable Compact View Elements */
+.compact-view .album-art {
+  cursor: pointer !important;
+}
+.compact-view .track-title {
+  cursor: pointer !important;
+}
+.compact-view .track-title:hover {
+  text-decoration: underline !important;
+}
+

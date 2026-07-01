@@ -28,7 +28,7 @@
     
     <div class="nav-menu">
       <button class="nav-btn btn-1" data-label="Home" style="z-index: 1;"><img src="assets/icons/home.svg" alt="Home"></button>
-      <button class="nav-btn btn-2" data-label="Library"><img src="assets/icons/library.svg" alt="Library"></button>
+      <button class="nav-btn btn-2" data-label="My Library"><img src="assets/icons/library.svg" alt="Library"></button>
       <button class="nav-btn btn-3" data-label="Customize"><img src="assets/icons/palette.svg" alt="Customize"></button>
       <button class="nav-btn btn-4" data-label="Search"><img src="assets/icons/search.svg" alt="Search"></button>
       <button class="nav-btn btn-5" data-label="Create Playlist"><img src="assets/icons/add.svg" alt="Add"></button>
@@ -39,7 +39,7 @@
 
   <!-- Library View Overlay -->
   <div id="libraryView" class="library-view">
-    <div class="library-header">
+    <div class="library-header" id="libraryHeader">
       <div class="library-header-left">
         <button class="lib-back-btn" id="libBackBtn" title="Back">
 <img src="assets/icons/arrow_back.svg" alt="">
@@ -47,24 +47,42 @@
         <div class="library-tabs">
           <button class="lib-tab active" data-tab="all">All</button>
           <button class="lib-tab" data-tab="playlists">Playlists</button>
-          <button class="lib-tab" data-tab="favorites">Favorite Songs</button>
+          <button class="lib-tab" data-tab="albums">Albums</button>
           <button class="lib-tab" data-tab="recent">Recently Played</button>
         </div>
       </div>
+      
+      <!-- Center-aligned library search bar (always active/visible on desktop) -->
+      <div class="library-search-wrapper active" id="librarySearchWrapper">
+        <input type="text" class="library-search-input" placeholder="Search in your library">
+        <button class="library-clear-btn" id="libraryClearBtn" title="Clear"><img src="assets/icons/close.svg" alt="Clear"></button>
+        <button class="lib-action-btn search-btn" title="Search"><img src="assets/icons/search.svg" alt="Search"></button>
+      </div>
+
       <div class="library-actions">
-        <div class="library-search-wrapper">
-          <input type="text" class="library-search-input" placeholder="Search in your library">
-          <button class="library-clear-btn" id="libraryClearBtn" title="Clear"><img src="assets/icons/close.svg" alt="Clear"></button>
-          <button class="lib-action-btn search-btn" title="Search"><img src="assets/icons/search.svg" alt="Search"></button>
-        </div>
         <button class="lib-sort-btn">
           <span>Recent</span>
           <img src="assets/icons/sort_filter.svg" alt="Sort">
         </button>
       </div>
     </div>
+
+    <!-- Album Detail Header (back arrow only) -->
+    <div class="album-header" id="albumHeader" style="display: none;">
+      <div class="album-header-left">
+        <button class="album-back-btn" id="albumBackBtn" title="Back">
+          <img src="assets/icons/arrow_back.svg" alt="Back">
+        </button>
+      </div>
+    </div>
+
     <div class="library-grid" id="libraryGrid">
       <!-- Library items will be rendered dynamically by JS -->
+    </div>
+
+    <!-- Album Detail View Content -->
+    <div class="album-detail-view" id="albumDetailView" style="display: none;">
+      <!-- Details rendered dynamically by JS -->
     </div>
   </div>
 
@@ -132,6 +150,76 @@
     </div>
   </div>
 
+  <!-- Create Playlist Overlay -->
+  <div id="createPlaylistOverlay" class="create-playlist-overlay">
+    <button class="upload-close-btn" id="cpCloseBtn"><img src="assets/icons/close.svg" alt="Close"></button>
+    <div class="create-playlist-modal">
+
+      <!-- LEFT: Art + Name -->
+      <div class="cp-left">
+        <div class="cp-art-wrapper" id="cpArtWrapper">
+          <img src="" alt="Playlist Art" class="cp-art-img" id="cpArtImg">
+          <div class="cp-art-overlay">
+            <img src="assets/icons/photo_art.svg" alt="Choose Photo" class="cp-photo-icon">
+            <span>Choose photo</span>
+          </div>
+          <button class="cp-art-more-btn" id="cpArtMoreBtn" title="More options">
+            <img src="assets/icons/more.svg" alt="More">
+          </button>
+          <input type="file" id="cpPlaylistArtInput" accept="image/*" style="display: none;">
+        </div>
+        <div class="cp-playlist-name-container" id="cpPlaylistNameContainer">
+          <div class="cp-playlist-name" id="cpPlaylistName"></div>
+          <button class="cp-name-more-btn" id="cpNameMoreBtn" title="Edit name">
+            <img src="assets/icons/more.svg" alt="Edit">
+          </button>
+          <div id="cpNameEditPopup" class="cp-name-edit-popup" style="display: none;">
+            <input type="text" id="cpNameInput" class="cp-name-input" placeholder="Enter playlist name" maxlength="100">
+            <div class="cp-name-edit-actions">
+              <button class="cp-name-btn cancel" id="cpNameCancelBtn">Cancel</button>
+              <button class="cp-name-btn save" id="cpNameSaveBtn">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="cp-username" id="cpUsername">greyjeno</div>
+      </div>
+
+      <!-- RIGHT: Search + Tracklist -->
+      <div class="cp-right">
+        <div class="cp-right-title">Add your favorites</div>
+
+        <!-- Search bar -->
+        <div class="cp-search-wrapper" style="position: relative;">
+          <input type="text" class="cp-search-input" id="cpSearchInput" placeholder="Search by songs, artist, and albums" autocomplete="off">
+          <button class="library-clear-btn" id="cpSearchClearBtn" title="Clear" style="display: none;"><img src="assets/icons/close.svg" alt="Clear"></button>
+          <button class="cp-search-btn" id="cpSearchBtn" title="Search">
+            <img src="assets/icons/search.svg" alt="Search">
+          </button>
+          <div class="cp-search-results-wrapper" id="cpSearchResultsWrapper" style="display: none;">
+            <div class="cp-search-results" id="cpSearchResults"></div>
+          </div>
+        </div>
+
+        <!-- Tracklist section -->
+        <div class="cp-tracklist-section">
+          <div class="cp-tracklist-label">In this playlist</div>
+          <div class="cp-tracklist-headers">
+            <span></span>
+            <span class="header-title" style="grid-column: span 2; text-align: left;">Title</span>
+            <span class="header-time" style="text-align: center;">Time</span>
+          </div>
+          <div class="cp-track-list" id="cpTrackList">
+            <div class="cp-empty-state" id="cpEmptyState">No songs added yet. Search to add songs.</div>
+          </div>
+        </div>
+
+        <!-- Done -->
+        <button class="cp-done-btn" id="cpDoneBtn">Done</button>
+      </div>
+
+    </div>
+  </div>
+
   <div class="music-player-wrapper">
     <div class="player-handle">
       <img src="assets/icons/arrow_up_player_handle.svg" alt="^" class="chevron-icon"> 
@@ -191,6 +279,10 @@
       <div class="expanded-view">
         
         <div class="ex-left">
+          <!-- Fullscreen Back Button -->
+          <button class="lib-back-btn" id="fsBackBtn" title="Back">
+            <img src="assets/icons/arrow_back.svg" alt="Back">
+          </button>
           <div class="now-playing-label">
             <div class="loader-wrapper">
               <div class="loader">
@@ -205,6 +297,14 @@
           </div>
           <img src="assets/albums/blonde-frank ocean.jpg" alt="Blonde" class="large-album-art">
           <div class="large-track-info">
+            <div class="large-title-wrapper">
+              <h3>Self Control</h3>
+            </div>
+            <div class="large-artist-wrapper">
+              <p>Frank Ocean | Blonde</p>
+            </div>
+          </div>
+          <div class="large-track-info-fullscreen">
             <div class="large-title-wrapper">
               <h3>Self Control</h3>
             </div>
@@ -453,6 +553,18 @@
     </div>
     <!-- Toast notifications stack below the progress box -->
     <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <!-- Playlist Quit Confirmation Dialog -->
+  <div id="cpConfirmOverlay" class="upload-confirm-overlay" style="display: none; z-index: 20030;">
+    <div class="upload-confirm-box">
+      <h4 class="upload-confirm-title">Are you sure you want to quit?</h4>
+      <p class="upload-confirm-desc">Your playlist will not be saved.</p>
+      <div class="upload-confirm-buttons">
+        <button class="upload-confirm-btn cancel" id="cpConfirmCancelBtn">Cancel</button>
+        <button class="upload-confirm-btn quit" id="cpConfirmQuitBtn">Quit</button>
+      </div>
+    </div>
   </div>
 
 </body>

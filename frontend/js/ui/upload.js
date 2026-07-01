@@ -131,6 +131,26 @@ export function initUpload() {
     }
   }
 
+  // Intercept sidebar navigation clicks to handle confirmation cleanly
+  const navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(btn => {
+    if (btn.classList.contains('btn-6')) return; // skip upload nav btn
+    btn.addEventListener('click', (e) => {
+      if (uploadOverlay.classList.contains('show')) {
+        if (uploadFilesList.length > 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          requestCloseUpload(() => {
+            closeUpload();
+            btn.click();
+          });
+        } else {
+          closeUpload();
+        }
+      }
+    }, true); // capture phase
+  });
+
   uploadBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (uploadOverlay.classList.contains("show")) {
@@ -148,6 +168,22 @@ export function initUpload() {
   }
 
   // Handle files adding
+  function triggerInvalidFileState() {
+    if (!uploadBox) return;
+    // Remove then re-add class so animation can replay
+    uploadBox.classList.remove('invalid-drop');
+    // Force reflow
+    void uploadBox.offsetWidth;
+    uploadBox.classList.add('invalid-drop');
+    // Remove the class after animation ends so it can be triggered again
+    uploadBox.addEventListener('animationend', () => {
+      uploadBox.classList.remove('invalid-drop');
+    }, { once: true });
+    if (window.Player && typeof window.Player.showToast === 'function') {
+      window.Player.showToast('Only MP3 or WAV files are supported');
+    }
+  }
+
   function handleFilesAdded(files) {
     if (!files || files.length === 0) return;
 
@@ -161,7 +197,7 @@ export function initUpload() {
       // Validate file extension
       const ext = file.name.split('.').pop().toLowerCase();
       if (ext !== 'mp3' && ext !== 'wav') {
-        console.warn("Only .mp3 and .wav files are supported:", file.name);
+        triggerInvalidFileState();
         return;
       }
 
@@ -313,6 +349,55 @@ export function initUpload() {
       const itemEl = document.createElement("div");
       itemEl.className = "upload-track-item";
 
+      // Enable HTML5 Drag & Drop reordering (with visual indicators matching the queue list)
+      itemEl.setAttribute("draggable", "true");
+      itemEl.addEventListener("dragstart", (e) => {
+        e.stopPropagation();
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", index);
+        setTimeout(() => itemEl.classList.add("dragging"), 0);
+      });
+      itemEl.addEventListener("dragend", () => {
+        uploadTrackList.querySelectorAll(".upload-track-item").forEach(el => {
+          el.classList.remove("dragging", "drag-over-top", "drag-over-bottom");
+        });
+      });
+      itemEl.addEventListener("dragover", (e) => {
+        if (itemEl.classList.contains("dragging")) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = "move";
+        const rect = itemEl.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        uploadTrackList.querySelectorAll(".upload-track-item").forEach(el => {
+          el.classList.remove("drag-over-top", "drag-over-bottom");
+        });
+        itemEl.classList.add(e.clientY < midY ? "drag-over-top" : "drag-over-bottom");
+      });
+      itemEl.addEventListener("dragleave", () => {
+        itemEl.classList.remove("drag-over-top", "drag-over-bottom");
+      });
+      itemEl.addEventListener("drop", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        itemEl.classList.remove("drag-over-top", "drag-over-bottom");
+        const sourceIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+        if (isNaN(sourceIdx) || sourceIdx === index) return;
+
+        const rect = itemEl.getBoundingClientRect();
+        const insertBefore = e.clientY < rect.top + rect.height / 2;
+        const targetIdx = index;
+        const draggedItem = uploadFilesList.splice(sourceIdx, 1)[0];
+        let insertIdx = targetIdx;
+        if (!insertBefore) {
+          insertIdx = targetIdx + (sourceIdx < targetIdx ? 0 : 1);
+        } else {
+          insertIdx = targetIdx - (sourceIdx < targetIdx ? 1 : 0);
+        }
+        uploadFilesList.splice(insertIdx, 0, draggedItem);
+        renderTracklistItems();
+      });
+
       const numEl = document.createElement("span");
       numEl.className = "upload-track-num";
       numEl.textContent = index + 1;
@@ -401,6 +486,18 @@ export function initUpload() {
     });
 
     uploadFileInput.addEventListener("change", (e) => {
+      const selectedFiles = Array.from(e.target.files);
+      if (selectedFiles.length > 0) {
+        const allInvalid = selectedFiles.every(f => {
+          const ext = f.name.split('.').pop().toLowerCase();
+          return ext !== 'mp3' && ext !== 'wav';
+        });
+        if (allInvalid) {
+          triggerInvalidFileState();
+          uploadFileInput.value = "";
+          return;
+        }
+      }
       handleFilesAdded(e.target.files);
     });
   }
@@ -412,6 +509,9 @@ export function initUpload() {
     uploadOverlay.addEventListener('dragenter', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      const types = e.dataTransfer.types;
+      const isFileDrag = types && (types.includes ? types.includes("Files") : Array.from(types).includes("Files"));
+      if (!isFileDrag) return;
       if (!uploadOverlay.classList.contains("show")) return;
       
       dragCounter++;
@@ -423,11 +523,17 @@ export function initUpload() {
     uploadOverlay.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      const types = e.dataTransfer.types;
+      const isFileDrag = types && (types.includes ? types.includes("Files") : Array.from(types).includes("Files"));
+      if (!isFileDrag) return;
     }, false);
 
     uploadOverlay.addEventListener('dragleave', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      const types = e.dataTransfer.types;
+      const isFileDrag = types && (types.includes ? types.includes("Files") : Array.from(types).includes("Files"));
+      if (!isFileDrag) return;
       if (!uploadOverlay.classList.contains("show")) return;
 
       dragCounter--;
@@ -439,11 +545,25 @@ export function initUpload() {
     uploadOverlay.addEventListener('drop', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      const types = e.dataTransfer.types;
+      const isFileDrag = types && (types.includes ? types.includes("Files") : Array.from(types).includes("Files"));
+      if (!isFileDrag) return;
       
       dragCounter = 0;
       uploadBox.classList.remove('dragover');
 
       if (!uploadOverlay.classList.contains("show")) return;
+
+      // Check if every dropped file is invalid before processing
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      const allInvalid = droppedFiles.length > 0 && droppedFiles.every(f => {
+        const ext = f.name.split('.').pop().toLowerCase();
+        return ext !== 'mp3' && ext !== 'wav';
+      });
+      if (allInvalid) {
+        triggerInvalidFileState();
+        return;
+      }
 
       handleFilesAdded(e.dataTransfer.files);
     });
@@ -629,11 +749,6 @@ export function initUpload() {
         window.Player.loadPlayerSongs();
       }
 
-      // Push to the top of upcoming queue-list (userQueue)
-      if (window.Player && typeof window.Player.addMultipleToQueue === "function" && uploadedTracks.length > 0) {
-        window.Player.addMultipleToQueue(uploadedTracks);
-      }
-
       // Auto-dismiss progress box after 2.5 s
       setTimeout(() => {
         if (upbBox) upbBox.style.display = "none";
@@ -673,6 +788,23 @@ export function initUpload() {
   // Expose close helper globally
   window.closeUploadMenu = () => {
     requestCloseUpload(closeUpload);
+  };
+
+  window.isUploadModalOpen = () => uploadOverlay && uploadOverlay.classList.contains('show');
+  window.requestCloseUploadModal = (onConfirmClose) => {
+    if (uploadOverlay && uploadOverlay.classList.contains('show')) {
+      if (uploadFilesList && uploadFilesList.length > 0) {
+        requestCloseUpload(() => {
+          closeUpload();
+          if (typeof onConfirmClose === 'function') onConfirmClose();
+        });
+      } else {
+        closeUpload();
+        if (typeof onConfirmClose === 'function') onConfirmClose();
+      }
+    } else {
+      if (typeof onConfirmClose === 'function') onConfirmClose();
+    }
   };
 }
 

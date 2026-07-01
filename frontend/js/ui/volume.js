@@ -263,5 +263,24 @@ export function initVolume() {
     stopVolumeRepeat();
   });
 
+  // Mute shortcut: 'm' key press (case-insensitive)
+  let preMuteVolume = 100;
+  window.addEventListener('keydown', (e) => {
+    // Ignore keydown events when focus is on text inputs/textareas
+    const target = e.target;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      return;
+    }
+    if (e.key === 'm' || e.key === 'M') {
+      if (volumeState.current > 0) {
+        preMuteVolume = volumeState.current;
+        volumeState.current = 0;
+      } else {
+        volumeState.current = preMuteVolume > 0 ? preMuteVolume : 100;
+      }
+      updateVolumeDisplay();
+    }
+  });
+
   updateVolumeDisplay();
 }

@@ -1,0 +1,297 @@
+document.addEventListener("DOMContentLoaded", () => {
+  // =========================================
+  // 1. GLOBAL CONFIGURATION & ELEMENTS
+  // =========================================
+  const CONFIG = {
+    dragThreshold: 5,
+    marginDesktop: 115,
+    marginMobile: 80,
+    bufferDesktop: 240,
+    bufferMobile: 150,
+    holdDelayMs: 400,
+    holdSpeedMs: 60,
+  };
+
+  const UI = {
+    vinyl: document.getElementById("vinylContainer"),
+    video: document.getElementById("bgVideo"),
+    playerWrapper: document.querySelector(".music-player-wrapper"),
+    volumeBtn: document.getElementById("volumeBtn"),
+    volumeWheel: document.getElementById("volumeWheel"),
+    volCurrent: document.getElementById("volCurrent"),
+    volNext2: document.getElementById("volNext2"),
+    volPrev2: document.getElementById("volPrev2"),
+    volumeIcon: document.getElementById("volumeIcon"),
+  };
+
+  // =========================================
+  // 2. VINYL DRAG LOGIC
+  // =========================================
+  let dragState = { isMouseDown: false, isDragging: false, startX: 0, startY: 0, startLeft: 0, startTop: 0 };
+
+  const getEventTarget = (e) => (e.touches ? e.touches[0] : e);
+
+  function closeMenu() {
+    if (UI.vinyl.classList.contains("active")) {
+      UI.vinyl.classList.remove("active");
+      UI.video.classList.remove("blurred");
+      if (UI.playerWrapper) UI.playerWrapper.classList.remove("blurred-player");
+    }
+  }
+
+  function handleDragStart(e) {
+    if (e.target.classList.contains("nav-btn")) return;
+    dragState.isMouseDown = true;
+    dragState.isDragging = false;
+    
+    const point = getEventTarget(e);
+    dragState.startX = point.clientX;
+    dragState.startY = point.clientY;
+    dragState.startLeft = UI.vinyl.offsetLeft;
+    dragState.startTop = UI.vinyl.offsetTop;
+    
+    document.body.style.userSelect = "none";
+  }
+
+  function handleDragMove(e) {
+    if (!dragState.isMouseDown) return;
+
+    const point = getEventTarget(e);
+    const deltaX = point.clientX - dragState.startX;
+    const deltaY = point.clientY - dragState.startY;
+
+    if (Math.abs(deltaX) > CONFIG.dragThreshold || Math.abs(deltaY) > CONFIG.dragThreshold) {
+      dragState.isDragging = true;
+      UI.vinyl.classList.add("dragging");
+      
+      // Matikan menu dan blur paksa saat ditarik
+      UI.vinyl.classList.remove("active");
+      UI.video.classList.remove("blurred");
+    }
+
+    if (!dragState.isDragging) return;
+    UI.vinyl.style.left = (dragState.startLeft + deltaX) + "px";
+    UI.vinyl.style.top = (dragState.startTop + deltaY) + "px";
+  }
+
+  function handleDragEnd() {
+    if (!dragState.isMouseDown) return;
+    dragState.isMouseDown = false;
+    document.body.style.userSelect = "";
+
+    // Jika hanya diklik (bukan di-drag)
+    if (!dragState.isDragging) {
+      const isActive = UI.vinyl.classList.toggle("active");
+      if (isActive) {
+        UI.video.classList.add("blurred");
+        if (UI.playerWrapper) UI.playerWrapper.classList.add("blurred-player");
+      } else {
+        UI.video.classList.remove("blurred");
+        if (UI.playerWrapper) UI.playerWrapper.classList.remove("blurred-player");
+      }
+      return;
+    }
+
+    // Jika selesai di-drag
+    dragState.isDragging = false;
+    UI.vinyl.classList.remove("dragging", "active");
+    UI.video.classList.remove("blurred");
+    if (UI.playerWrapper) UI.playerWrapper.classList.remove("blurred-player");
+
+    calculateSnapPosition();
+  }
+
+  function calculateSnapPosition() {
+    const width = UI.vinyl.offsetWidth;
+    const height = UI.vinyl.offsetHeight;
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+
+    const margin = vw <= 768 ? CONFIG.marginMobile : CONFIG.marginDesktop;
+    const maxLimitX = vw - margin - width;
+    const maxLimitY = vh - margin - height;
+
+    const currentLeft = UI.vinyl.offsetLeft;
+    const currentTop = UI.vinyl.offsetTop;
+    const centerX = currentLeft + halfWidth;
+    const centerY = currentTop + halfHeight;
+
+    const dist = {
+      left: centerX,
+      right: vw - centerX,
+      top: centerY,
+      bottom: vh - centerY
+    };
+    
+    const minDistance = Math.min(dist.left, dist.right, dist.top, dist.bottom);
+    let finalLeft = currentLeft, finalTop = currentTop;
+
+    UI.vinyl.classList.remove("snap-left", "snap-right", "snap-top", "snap-bottom");
+
+    if (minDistance === dist.left) {
+      finalLeft = -halfWidth;
+      finalTop = Math.max(margin, Math.min(currentTop, maxLimitY));
+      UI.vinyl.classList.add("snap-left");
+    } else if (minDistance === dist.right) {
+      finalLeft = vw - halfWidth;
+      finalTop = Math.max(margin, Math.min(currentTop, maxLimitY));
+      UI.vinyl.classList.add("snap-right");
+    } else if (minDistance === dist.top) {
+      finalLeft = Math.max(margin, Math.min(currentLeft, maxLimitX));
+      finalTop = -halfHeight;
+      UI.vinyl.classList.add("snap-top");
+    } else {
+      // Snap Bawah Default
+      finalLeft = Math.max(margin, Math.min(currentLeft, maxLimitX));
+      finalTop = vh - halfHeight;
+      UI.vinyl.classList.add("snap-bottom");
+
+      // Zona Pengecualian Music Player
+      if (UI.playerWrapper) {
+        const rect = UI.playerWrapper.getBoundingClientRect();
+        const buffer = vw <= 768 ? CONFIG.bufferMobile : CONFIG.bufferDesktop;
+        const safeLeftX = rect.left - buffer;
+        const safeRightX = rect.right + buffer;
+        let currentCenterX = finalLeft + halfWidth;
+        const playerCenterX = rect.left + (rect.width / 2);
+
+        if (currentCenterX > safeLeftX && currentCenterX < safeRightX) {
+          finalLeft = (currentCenterX < playerCenterX ? safeLeftX : safeRightX) - halfWidth;
+          finalLeft = Math.max(margin, Math.min(finalLeft, maxLimitX));
+        }
+      }
+    }
+
+    UI.vinyl.style.left = `${finalLeft}px`;
+    UI.vinyl.style.top = `${finalTop}px`;
+  }
+
+  // Event Listeners Vinyl
+  UI.vinyl.addEventListener("mousedown", handleDragStart);
+  window.addEventListener("mousemove", handleDragMove);
+  window.addEventListener("mouseup", handleDragEnd);
+
+  UI.vinyl.addEventListener("touchstart", handleDragStart, { passive: true });
+  window.addEventListener("touchmove", handleDragMove, { passive: false });
+  window.addEventListener("touchend", handleDragEnd);
+
+  window.addEventListener("click", (e) => {
+    if (UI.vinyl.classList.contains("active") && !UI.vinyl.contains(e.target)) closeMenu();
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" || e.key === "Esc") closeMenu();
+  });
+
+
+  // =========================================
+  // 3. VOLUME WHEEL LOGIC
+  // =========================================
+  let volumeState = { current: 100, interval: null, timeout: null };
+
+  function updateVolumeIcon() {
+    if (!UI.volumeIcon) return;
+    if (volumeState.current === 0) {
+      UI.volumeIcon.src = "assets/icons/volume_mute.svg";
+    } else if (volumeState.current <= 33) {
+      UI.volumeIcon.src = "assets/icons/volume_low.svg";
+    } else if (volumeState.current <= 66) {
+      UI.volumeIcon.src = "assets/icons/volume_normal.svg";
+    } else {
+      UI.volumeIcon.src = "assets/icons/volume_high.svg";
+    }
+  }
+
+  function updateVolumeDisplay() {
+    if (!UI.volCurrent) return;
+    UI.volCurrent.textContent = volumeState.current;
+    
+    if (UI.volNext2) UI.volNext2.innerHTML = volumeState.current + 1 <= 100 ? volumeState.current + 1 : "&nbsp;";
+    if (UI.volPrev2) UI.volPrev2.innerHTML = volumeState.current - 1 >= 0 ? volumeState.current - 1 : "&nbsp;";
+    
+    UI.volCurrent.classList.remove('slide-anim');
+    void UI.volCurrent.offsetWidth; 
+    UI.volCurrent.classList.add('slide-anim');
+
+    updateVolumeIcon();
+  }
+
+  function changeVolume(amount) {
+    let newVol = Math.max(0, Math.min(100, volumeState.current + amount));
+    if (newVol !== volumeState.current) {
+      volumeState.current = newVol;
+      updateVolumeDisplay();
+    }
+  }
+
+  function startVolumeRepeat(direction) {
+    stopVolumeRepeat();
+    changeVolume(direction);
+    volumeState.timeout = setTimeout(() => {
+      volumeState.interval = setInterval(() => changeVolume(direction), CONFIG.holdSpeedMs);
+    }, CONFIG.holdDelayMs);
+  }
+
+  function stopVolumeRepeat() {
+    if (volumeState.timeout) clearTimeout(volumeState.timeout);
+    if (volumeState.interval) clearInterval(volumeState.interval);
+  }
+
+  if (UI.volumeBtn && UI.volumeWheel) {
+    // Toggle Open/Close Volume Panel
+    UI.volumeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isShowing = UI.volumeWheel.classList.contains("show");
+      UI.volumeWheel.classList.toggle("show", !isShowing);
+      UI.volumeBtn.classList.toggle("active-v", !isShowing);
+      if (UI.playerWrapper) UI.playerWrapper.classList.toggle("volume-active", !isShowing);
+      updateVolumeDisplay();
+    });
+
+    // Arrow Up (+1)
+    if (UI.volNext2) {
+      UI.volNext2.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(1); });
+      UI.volNext2.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(1); }, { passive: true });
+      UI.volNext2.addEventListener("mouseleave", stopVolumeRepeat);
+    }
+
+    // Arrow Down (-1)
+    if (UI.volPrev2) {
+      UI.volPrev2.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(-1); });
+      UI.volPrev2.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(-1); }, { passive: true });
+      UI.volPrev2.addEventListener("mouseleave", stopVolumeRepeat);
+    }
+
+    // Mouse Wheel
+    UI.volumeWheel.addEventListener("wheel", (e) => {
+      e.preventDefault(); 
+      let step = Math.min(10, Math.max(1, Math.ceil(Math.abs(e.deltaY) / 15))); 
+      changeVolume(e.deltaY < 0 ? step : -step);
+    }, { passive: false });
+
+    // Touch Swipe
+    let touchStartY = 0, lastVolumeTouch = 100;
+    UI.volumeWheel.addEventListener("touchstart", (e) => {
+      touchStartY = e.touches[0].clientY;
+      lastVolumeTouch = volumeState.current;
+    }, { passive: true });
+    
+    UI.volumeWheel.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const step = Math.round((touchStartY - e.touches[0].clientY) / 3); 
+      let newVol = Math.max(0, Math.min(100, lastVolumeTouch + step));
+      if (newVol !== volumeState.current) {
+        volumeState.current = newVol;
+        updateVolumeDisplay();
+      }
+    }, { passive: false });
+  }
+
+  // Global stoppers
+  window.addEventListener("mouseup", stopVolumeRepeat);
+  window.addEventListener("touchend", stopVolumeRepeat);
+
+  // Init State
+  updateVolumeIcon();
+});

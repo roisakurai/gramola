@@ -20,7 +20,7 @@
             // Push dividerTime to the right to maintain min 150px album width
             let newTotalWidth = newTitleWidth + 150;
             const containerWidth = document.querySelector('.ex-right')?.clientWidth || 500;
-            const maxTotalWidth = containerWidth - 260;
+            const maxTotalWidth = containerWidth - 280;
             if (newTotalWidth > maxTotalWidth) {
               newTotalWidth = maxTotalWidth;
               newTitleWidth = newTotalWidth - 150; // cap title width to match container limit
@@ -60,7 +60,7 @@
           let newTotalWidth = startWidth + deltaX;
           
           const containerWidth = document.querySelector('.ex-right')?.clientWidth || 500;
-          const maxTotalWidth = containerWidth - 260;
+          const maxTotalWidth = containerWidth - 280;
           newTotalWidth = Math.min(maxTotalWidth, newTotalWidth);
           
           // Read live title width to prevent dragging-back pulling

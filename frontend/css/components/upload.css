@@ -66,6 +66,7 @@
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   max-width: 95%;
   box-sizing: border-box;
+  margin-top: -60px;
 }
 
 /* Dual Column Layout when tracklist has songs */
@@ -149,7 +150,7 @@
   color: white;
   font-size: 18px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  /* letter-spacing: 0.5px; */
 }
 
 .upload-subtitle {
@@ -173,7 +174,7 @@
 
 .upload-select-btn:hover {
   background: var(--primary);
-  border: var(--primary);
+  border-color: var(--primary);
   transform: scale(1.02);
 }
 
@@ -197,6 +198,24 @@
   color: white !important;
 }
 
+/* Invalid file type — shake + red outline */
+@keyframes uploadBoxShake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-8px); }
+  30%  { transform: translateX(8px); }
+  45%  { transform: translateX(-6px); }
+  60%  { transform: translateX(6px); }
+  75%  { transform: translateX(-3px); }
+  90%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+.upload-box.invalid-drop {
+  animation: uploadBoxShake 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
+  background-image: url("data:image/svg+xml;utf8,<svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' fill='none' rx='16' ry='16' stroke='%23E50E0E' stroke-width='1.5' stroke-dasharray='10, 10' stroke-dashoffset='0' stroke-linecap='square'/></svg>") !important;
+  background-color: rgba(229, 14, 14, 0.06) !important;
+}
+
 /* ========================================= */
 /* --- UPLOAD TRACKLIST VIEW ---             */
 /* ========================================= */
@@ -209,25 +228,27 @@
   height: auto;
   max-height: 620px;
   box-sizing: border-box;
+  width: 600px;
 }
 
 .upload-tracklist-title {
   font-size: 22px;
   font-weight: 600;
   margin: 0 0 16px 0;
-  letter-spacing: 0.5px;
+  margin-left: 50px;
+  /* letter-spacing: 0.5px; */
 }
 
 .upload-tracklist-headers {
   display: grid;
-  grid-template-columns: 35px 40px 1fr 42px 30px 7px;
+  grid-template-columns: 24px 46px 1fr 40px 42px;
   column-gap: 16px;
   align-items: center;
   color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  padding-bottom: 8px;
+  /* letter-spacing: 0.5px; */
+  padding: 0 12px 8px;
   margin-bottom: 10px;
   box-sizing: border-box;
 }
@@ -243,7 +264,7 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
-  justify-self: end;
+  /* justify-self: end; */
 }
 
 .upload-delete-all-btn svg {
@@ -279,7 +300,7 @@
 
 /* Custom Scrollbar */
 .upload-track-list::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 .upload-track-list::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.03);
@@ -295,13 +316,16 @@
 
 .upload-track-item {
   display: grid;
-  grid-template-columns: 24px 44px 1fr 30px 30px;
+  grid-template-columns: 24px 46px 1fr 80px 30px;
   column-gap: 16px;
   align-items: center;
   padding: 8px 12px;
   border-radius: 8px;
   box-sizing: border-box;
+  height: 62px;
   transition: background-color 0.2s ease;
+  cursor: pointer;
+  position: relative;
 }
 
 .upload-track-item:hover {
@@ -310,16 +334,16 @@
 
 .upload-track-num {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
   text-align: center;
 }
 
 /* Conic border for progress outline */
 .upload-art-wrapper {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 6px;
   padding: 1.5px;
   background: conic-gradient(var(--primary) var(--progress, 0%), rgba(255, 255, 255, 0.1) 0%);
@@ -372,7 +396,7 @@
 
 .upload-track-title {
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -382,7 +406,7 @@
 
 .upload-track-meta {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -390,10 +414,10 @@
 }
 
 .upload-track-time {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
-  font-weight: 500;
-  text-align: left;
+  font-weight: 400;
+  text-align: right;
 }
 
 .upload-delete-btn {
@@ -407,7 +431,7 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
-  justify-self: end;
+  /* justify-self: end; */
 }
 
 .upload-delete-btn svg {
@@ -565,4 +589,34 @@
 
 .upload-confirm-btn:active {
   transform: scale(0.97);
+}
+
+/* Drag & Drop indicators for upload-track-item matching the queue list */
+.upload-track-item.dragging {
+  opacity: 0.35;
+  background: rgba(255,255,255,0.06);
+}
+
+.upload-track-item.drag-over-top::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.upload-track-item.drag-over-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px;
+  pointer-events: none;
 }
