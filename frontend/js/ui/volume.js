@@ -32,13 +32,23 @@ function updateVolumeDisplay() {
   updateVolumeIcon(UI.volumeIcon, val);
 
   // 2. Update Expanded View
-  if (UI.exVolCurrent) UI.exVolCurrent.textContent = val;
-  if (UI.exVolNext1) UI.exVolNext1.innerHTML = val + 1 <= 100 ? val + 1 : "&nbsp;";
-  if (UI.exVolNext2) UI.exVolNext2.innerHTML = val + 2 <= 100 ? val + 2 : "&nbsp;";
-  if (UI.exVolPrev1) UI.exVolPrev1.innerHTML = val - 1 >= 0 ? val - 1 : "&nbsp;";
-  if (UI.exVolPrev2) UI.exVolPrev2.innerHTML = val - 2 >= 0 ? val - 2 : "&nbsp;";
+  const exVolCurrents = document.querySelectorAll("#exVolCurrent, #fsVolCurrent");
+  exVolCurrents.forEach(el => el.textContent = val);
 
-  updateVolumeIcon(UI.exVolumeIcon, val);
+  const exVolNext1s = document.querySelectorAll("#exVolNext1, #fsVolNext1");
+  exVolNext1s.forEach(el => el.innerHTML = val + 1 <= 100 ? val + 1 : "&nbsp;");
+
+  const exVolNext2s = document.querySelectorAll("#exVolNext2, #fsVolNext2");
+  exVolNext2s.forEach(el => el.innerHTML = val + 2 <= 100 ? val + 2 : "&nbsp;");
+
+  const exVolPrev1s = document.querySelectorAll("#exVolPrev1, #fsVolPrev1");
+  exVolPrev1s.forEach(el => el.innerHTML = val - 1 >= 0 ? val - 1 : "&nbsp;");
+
+  const exVolPrev2s = document.querySelectorAll("#exVolPrev2, #fsVolPrev2");
+  exVolPrev2s.forEach(el => el.innerHTML = val - 2 >= 0 ? val - 2 : "&nbsp;");
+
+  const exVolumeIcons = document.querySelectorAll("#exVolumeIcon, #fsVolumeIcon");
+  exVolumeIcons.forEach(icon => updateVolumeIcon(icon, val));
 
   // Sync with audio element
   if (window.Player && window.Player.audio) {
@@ -93,8 +103,13 @@ function stopVolumeRepeat() {
 function setVolumePanelActive(isActive) {
   if (UI.volumeWheel) UI.volumeWheel.classList.toggle("show", isActive);
   if (UI.volumeBtn) UI.volumeBtn.classList.toggle("active-v", isActive);
-  if (UI.exVolumePanel) UI.exVolumePanel.classList.toggle("show", isActive);
-  if (UI.exVolumeBtn) UI.exVolumeBtn.classList.toggle("active-v", isActive);
+  
+  const exPanels = document.querySelectorAll("#exVolumePanel, #fsVolumePanel");
+  exPanels.forEach(p => p.classList.toggle("show", isActive));
+  
+  const exBtns = document.querySelectorAll("#exVolumeBtn, #fsVolumeBtn");
+  exBtns.forEach(b => b.classList.toggle("active-v", isActive));
+  
   if (UI.playerWrapper) UI.playerWrapper.classList.toggle("volume-active", isActive);
 }
 
@@ -115,7 +130,8 @@ export function initVolume() {
     function handleMove(x, y) {
       if (!isDragging) return;
       
-      const isFullscreen = isExVolume && UI.playerWrapper && UI.playerWrapper.classList.contains('fullscreen-active');
+      const fsView = document.getElementById('fullscreenView');
+      const isFullscreen = isExVolume && fsView && fsView.classList.contains('show');
       let step = 0;
       
       if (isFullscreen) {
@@ -209,49 +225,62 @@ export function initVolume() {
   }
 
   // --- 2. EXPANDED VIEW VOLUME PANEL ---
-  if (UI.exVolumeBtn && UI.exVolumePanel) {
-    UI.exVolumeBtn.addEventListener("click", (e) => {
+  const exVolumeBtns = document.querySelectorAll("#exVolumeBtn, #fsVolumeBtn");
+  exVolumeBtns.forEach(btn => {
+    btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isActive = !UI.exVolumePanel.classList.contains("show");
-      setVolumePanelActive(isActive);
-      updateVolumeDisplay();
+      const panelId = btn.id === "fsVolumeBtn" ? "fsVolumePanel" : "exVolumePanel";
+      const panel = document.getElementById(panelId);
+      if (panel) {
+        const isActive = !panel.classList.contains("show");
+        setVolumePanelActive(isActive);
+        updateVolumeDisplay();
+      }
     });
+  });
 
-    if (UI.exVolumeWheel) {
-      UI.exVolumeWheel.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        let step = Math.min(10, Math.max(1, Math.ceil(Math.abs(e.deltaY) / 15)));
-        changeVolume(e.deltaY < 0 ? step : -step);
-      }, { passive: false });
+  const exVolumeWheels = document.querySelectorAll("#exVolumeWheel, #fsVolumeWheel");
+  exVolumeWheels.forEach(wheelEl => {
+    wheelEl.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      let step = Math.min(10, Math.max(1, Math.ceil(Math.abs(e.deltaY) / 15)));
+      changeVolume(e.deltaY < 0 ? step : -step);
+    }, { passive: false });
 
-      setupDragVolume(UI.exVolumeWheel, true);
+    setupDragVolume(wheelEl, true);
+  });
 
-      if (UI.exVolNext1) {
-        UI.exVolNext1.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(1); });
-        UI.exVolNext1.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(1); }, { passive: true });
-        UI.exVolNext1.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
-        UI.exVolNext1.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(1); });
-      }
-      if (UI.exVolNext2) {
-        UI.exVolNext2.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(2); });
-        UI.exVolNext2.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(2); }, { passive: true });
-        UI.exVolNext2.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
-        UI.exVolNext2.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(2); });
-      }
-      if (UI.exVolPrev1) {
-        UI.exVolPrev1.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(-1); });
-        UI.exVolPrev1.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(-1); }, { passive: true });
-        UI.exVolPrev1.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
-        UI.exVolPrev1.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(-1); });
-      }
-      if (UI.exVolPrev2) {
-        UI.exVolPrev2.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(-2); });
-        UI.exVolPrev2.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(-2); }, { passive: true });
-        UI.exVolPrev2.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
-        UI.exVolPrev2.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(-2); });
-      }
-    }
-  }
+  const next1s = document.querySelectorAll("#exVolNext1, #fsVolNext1");
+  next1s.forEach(el => {
+    el.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(1); });
+    el.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(1); }, { passive: true });
+    el.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
+    el.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(1); });
+  });
+
+  const next2s = document.querySelectorAll("#exVolNext2, #fsVolNext2");
+  next2s.forEach(el => {
+    el.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(2); });
+    el.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(2); }, { passive: true });
+    el.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
+    el.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(2); });
+  });
+
+  const prev1s = document.querySelectorAll("#exVolPrev1, #fsVolPrev1");
+  prev1s.forEach(el => {
+    el.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(-1); });
+    el.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(-1); }, { passive: true });
+    el.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
+    el.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(-1); });
+  });
+
+  const prev2s = document.querySelectorAll("#exVolPrev2, #fsVolPrev2");
+  prev2s.forEach(el => {
+    el.addEventListener("mousedown", (e) => { e.stopPropagation(); if (e.button === 0) startVolumeRepeat(-2); });
+    el.addEventListener("touchstart", (e) => { e.stopPropagation(); startVolumeRepeat(-2); }, { passive: true });
+    el.addEventListener("mouseleave", () => { if (volumeState.isHolding) stopVolumeRepeat(); });
+    el.addEventListener("mouseenter", () => { if (volumeState.isHolding) startVolumeRepeat(-2); });
+  });
 
   // Global mouse/touch release
   window.addEventListener("mouseup", () => {

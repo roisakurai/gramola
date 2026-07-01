@@ -271,7 +271,7 @@
 }
 .queue-item:hover { background: rgba(255,255,255,0.08); cursor: pointer; }
 .queue-item.active { background: rgba(255,255,255,0.15); }
-.queue-item.playing h4 { color: var(--primary); }
+/* .queue-item.playing h4 { color: var(--primary); } */
 
 
 .queue-item img { width: 46px; height: 46px; border-radius: 4px; object-fit: cover; }

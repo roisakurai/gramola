@@ -67,11 +67,24 @@
       </div>
     </div>
 
-    <!-- Album Detail Header (back arrow only) -->
+    <!-- Album Detail Header -->
     <div class="album-header" id="albumHeader" style="display: none;">
       <div class="album-header-left">
         <button class="album-back-btn" id="albumBackBtn" title="Back">
           <img src="assets/icons/arrow_back.svg" alt="Back">
+        </button>
+      </div><div class="ad-right-header-row">
+        <!-- Search bar on the left -->
+        <div class="library-search-wrapper active" id="albumSearchWrapper">
+        <input type="text" class="library-search-input" id="albumSearchInput" placeholder="Search in this playlist">
+        <button class="library-clear-btn" id="albumClearBtn" title="Clear" style="display: none;"><img src="assets/icons/close.svg" alt="Clear"></button>
+        <button class="lib-action-btn search-btn" id="albumSearchBtn" title="Search"><img src="assets/icons/search.svg" alt="Search"></button>
+        </div>
+        
+        <!-- Sort button on the right -->
+        <button class="lib-sort-btn" id="albumSortBtn">
+          <span>Track No</span>
+          <img src="assets/icons/sort_filter.svg" alt="Sort">
         </button>
       </div>
     </div>
@@ -102,38 +115,42 @@
 
   <!-- Upload Songs Overlay -->
   <div id="uploadOverlay" class="upload-overlay">
-    <button class="upload-close-btn" id="uploadCloseBtn"><img src="assets/icons/close.svg" alt="Close"></button>
-    <div class="upload-container" id="uploadContainer">
-      <div class="upload-box" id="uploadBox">
-        <div class="upload-left">
-          <img src="assets/icons/upload_vinyl.png" alt="Upload Vinyl" class="upload-vinyl-icon">
+    <div class="createPlaylist-header">
+      <button class="upload-close-btn" id="uploadCloseBtn"><img src="assets/icons/close.svg" alt="Close"></button>
+    </div>
+    <div class="wrapper-upload-container">
+      <div class="upload-container" id="uploadContainer">
+        <div class="upload-box" id="uploadBox">
+          <div class="upload-left">
+            <img src="assets/icons/upload_vinyl.png" alt="Upload Vinyl" class="upload-vinyl-icon">
+          </div>
+          <div class="upload-right">
+            <span class="upload-title">Drag your songs here</span>
+            <span class="upload-subtitle">.mp3 wav</span>
+            <button class="upload-select-btn" id="uploadSelectBtn">Select Files</button>
+            <input type="file" id="uploadFileInput" accept=".mp3, .wav" multiple style="display: none;">
+          </div>
         </div>
-        <div class="upload-right">
-          <span class="upload-title">Drag your songs here</span>
-          <span class="upload-subtitle">.mp3 wav</span>
-          <button class="upload-select-btn" id="uploadSelectBtn">Select Files</button>
-          <input type="file" id="uploadFileInput" accept=".mp3, .wav" multiple style="display: none;">
-        </div>
-      </div>
 
-      <!-- Tracklist (hidden initially) -->
-      <div class="upload-tracklist-container" id="uploadTracklistContainer" style="display: none;">
-        <h3 class="upload-tracklist-title">Tracklist</h3>
-        <div class="upload-tracklist-headers">
-          <span></span>
-          <span class="header-title" style="grid-column: span 2; text-align: left;">Title</span>
-          <span class="header-time" style="text-align: right;">Time</span>
-          <button class="upload-delete-all-btn" id="uploadDeleteAllBtn" title="Delete All">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 11h14v2H5z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="upload-track-list" id="uploadTrackList">
-          <!-- Dynamically populated -->
-        </div>
-        <div class="upload-actions-footer">
-          <button class="upload-submit-btn" id="uploadSubmitBtn">Upload</button>
+        <!-- Tracklist (hidden initially) -->
+        <div class="upload-tracklist-container" id="uploadTracklistContainer" style="display: none;">
+          <h3 class="upload-tracklist-title">Tracklist</h3>
+          <div class="upload-tracklist-headers">
+            <span></span>
+            <span class="header-title" style="grid-column: span 2; text-align: left;">Title</span>
+            <span class="header-time" style="text-align: right;">Time</span>
+            <button class="upload-delete-all-btn" id="uploadDeleteAllBtn" title="Delete All">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 11h14v2H5z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="upload-track-list" id="uploadTrackList">
+            <!-- Dynamically populated -->
+          </div>
+          <div class="upload-actions-footer">
+            <button class="upload-submit-btn" id="uploadSubmitBtn">Upload</button>
+          </div>
         </div>
       </div>
     </div>
@@ -152,7 +169,9 @@
 
   <!-- Create Playlist Overlay -->
   <div id="createPlaylistOverlay" class="create-playlist-overlay">
-    <button class="upload-close-btn" id="cpCloseBtn"><img src="assets/icons/close.svg" alt="Close"></button>
+    <div class="createPlaylist-header">
+      <button class="upload-close-btn" id="cpCloseBtn"><img src="assets/icons/close.svg" alt="Close"></button>
+    </div>
     <div class="create-playlist-modal">
 
       <!-- LEFT: Art + Name -->
@@ -220,6 +239,117 @@
     </div>
   </div>
 
+        <!-- Fullscreen View -->
+      <div id="fullscreenView" class="fullscreen-view">
+        <div class="queue-header-buttons">
+          <div class="fullscreenqueue-left-btn">
+            <button class="lib-back-btn" id="fsBackBtn" title="Back">
+              <img src="assets/icons/arrow_back.svg" alt="Back">
+            </button>
+          </div>
+          <div class="fullscreenqueue-right-btn">
+            <button class="icon-btn collapse-fs-btn" id="collapseFsBtn" title="Collapse Player"><img src="assets/icons/arrow_down.svg" alt="Collapse"></button>
+            <button class="icon-btn exit-fs-btn" id="exitFsBtn" title="Exit Full Screen"><img src="assets/icons/exit_fullscreen.svg" alt="Exit FS"></button>
+          </div>
+        </div>
+        
+        <div class="fullscreen-main-wrapper">
+          <div class="ex-left">
+            <div class="now-playing-label">
+              <div class="loader-wrapper">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <h3>Now Playing</h3>
+            </div>
+            
+            <img src="assets/albums/blonde-frank ocean.jpg" alt="Blonde" class="large-album-art">
+            
+            <div class="large-track-info-fullscreen">
+              <div class="large-title-wrapper">
+                <h3>Self Control</h3>
+              </div>
+              <div class="large-artist-wrapper">
+                <p>Frank Ocean | Blonde</p>
+              </div>
+            </div>
+            
+            <!-- Seekbar -->
+            <div class="ex-seekbar-container">
+              <div class="ex-progress-bar">
+                <div class="ex-progress-tooltip">0:00</div>
+                <div class="ex-progress-current" style="width: 0%;">
+                  <div class="ex-progress-handle"></div>
+                </div>
+                <div class="ex-progress-hover-preview"></div>
+              </div>
+              <div class="ex-time-row">
+                <span class="ex-time">0:00</span>
+                <span class="ex-time">0:00</span>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="ex-controls">
+              <div class="ex-left-spacer"></div>
+              <div class="ctrl-buttons-main">
+                <button class="ctrl-btn shuffle-btn"><img src="assets/icons/shuffle.svg" alt="Shuffle"></button>
+                <button class="ctrl-btn prev-btn"><img src="assets/icons/previous.svg" alt="Prev"></button>
+                <button class="ctrl-btn play-btn"><img src="assets/icons/play.svg" alt="Play"></button>
+                <button class="ctrl-btn next-btn"><img src="assets/icons/next.svg" alt="Next"></button>
+                <button class="ctrl-btn repeat-btn"><img src="assets/icons/repeat.svg" alt="Repeat"></button>
+              </div>
+              <div class="ex-volume-btn-container">
+                <button class="ctrl-btn volume-btn" id="fsVolumeBtn"><img src="assets/icons/volume_normal.svg" alt="Vol" id="fsVolumeIcon"></button>
+              </div>
+            </div>
+
+            <!-- Volume Panel -->
+            <div class="ex-volume-panel" id="fsVolumePanel">
+              <span class="ex-volume-label">Volume</span>
+              <div class="ex-volume-scroll">
+                <span class="ex-vol-icon-left"><img src="assets/icons/no_volume.svg" alt="Low"></span>
+                <div class="ex-vol-wheel" id="fsVolumeWheel">
+                  <div class="ex-vol-num next2" id="fsVolNext2">&nbsp;</div>
+                  <div class="ex-vol-num next1" id="fsVolNext1">&nbsp;</div>
+                  <div class="ex-vol-num active-row">
+                    <span class="ex-arrow-left"><img src="assets/icons/selector-arrow-left.svg" alt="&lt;"></span>
+                    <span id="fsVolCurrent">100</span>
+                    <span class="ex-arrow-right"><img src="assets/icons/selector-arrow-right.svg" alt="&gt;"></span>
+                  </div>
+                  <div class="ex-vol-num prev1" id="fsVolPrev1">&nbsp;</div>
+                  <div class="ex-vol-num prev2" id="fsVolPrev2">&nbsp;</div>
+                </div>
+                <span class="ex-vol-icon-right"><img src="assets/icons/volume_high.svg" alt="High"></span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="ex-right">
+            <div class="queue-header">
+              <h3 class="queue-header-title">Next From : in peace (or anxious)</h3>
+            </div>
+            
+            <div class="queue-subheader">
+              <div class="sub-col sub-col-title">Title</div>
+              <div class="sub-divider" id="dividerAlbum">|</div>
+              <div class="sub-col sub-col-album">Album</div>
+              <div class="sub-divider" id="dividerTime">|</div>
+              <div class="sub-col sub-col-time">Time</div>
+            </div>
+
+            <div class="ex-content-row">
+              <div class="queue-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
   <div class="music-player-wrapper">
     <div class="player-handle">
       <img src="assets/icons/arrow_up_player_handle.svg" alt="^" class="chevron-icon"> 
@@ -275,14 +405,9 @@
           </div>
         </div>
       </div>
-
+      <!-- Expanded Player Bar View (slides up) -->
       <div class="expanded-view">
-        
         <div class="ex-left">
-          <!-- Fullscreen Back Button -->
-          <button class="lib-back-btn" id="fsBackBtn" title="Back">
-            <img src="assets/icons/arrow_back.svg" alt="Back">
-          </button>
           <div class="now-playing-label">
             <div class="loader-wrapper">
               <div class="loader">
@@ -304,180 +429,26 @@
               <p>Frank Ocean | Blonde</p>
             </div>
           </div>
-          <div class="large-track-info-fullscreen">
-            <div class="large-title-wrapper">
-              <h3>Self Control</h3>
-            </div>
-            <div class="large-artist-wrapper">
-              <p>Frank Ocean | Blonde</p>
-            </div>
-          </div>
         </div>
 
         <div class="ex-right">
-          
           <div class="queue-header">
-            
             <h3 id="queueHeaderTitle">Next From : in peace (or anxious)</h3>
-    
             <div class="queue-header-buttons">
               <button class="icon-btn" id="exFsToggleBtn" title="Full Screen"><img src="assets/icons/fullscreen.svg" alt="FS"></button>
-              <button class="icon-btn collapse-fs-btn" id="collapseFsBtn" title="Collapse Player"><img src="assets/icons/arrow_down.svg" alt="Collapse"></button>
-              <button class="icon-btn exit-fs-btn" id="exitFsBtn" title="Exit Full Screen"><img src="assets/icons/exit_fullscreen.svg" alt="Exit FS"></button>
-              
             </div>
           </div>
           
-          <div class="queue-subheader" id="queueSubheader">
+          <div class="queue-subheader">
             <div class="sub-col sub-col-title">Title</div>
-            <div class="sub-divider" id="dividerAlbum">|</div>
+            <div class="sub-divider">|</div>
             <div class="sub-col sub-col-album">Album</div>
-            <div class="sub-divider" id="dividerTime">|</div>
+            <div class="sub-divider">|</div>
             <div class="sub-col sub-col-time">Time</div>
           </div>
 
           <div class="ex-content-row">
-            <div class="queue-list">
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Nikes</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">5:14</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-              
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Ivy</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">3:33</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn liked"><img src="assets/icons/love.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Pink + White</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">3:04</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Solo</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">3:43</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Skyline To</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">3:04</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Good Guy</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">1:06</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Nights</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">5:07</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Pretty Sweet</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">2:38</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>White Ferrari</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">4:08</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-  
-              <div class="queue-item">
-                <img src="assets/albums/blonde-frank ocean.jpg" alt="Art">
-                <div class="queue-info">
-                  <h4>Seigfried</h4>
-                  <p>Frank Ocean</p>
-                </div>
-                <span class="queue-time">5:34</span>
-                <div class="queue-actions">
-                  <button class="action-btn love-btn"><img src="assets/icons/love_outline.svg" alt="Love"></button>
-                  <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-                  <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-                </div>
-              </div>
-            </div>
+            <div class="queue-list"></div>
 
             <div class="ex-volume-panel" id="exVolumePanel">
               <span class="ex-volume-label">Volume</span>
@@ -503,14 +474,14 @@
             <div class="ex-seekbar-container">
               <div class="ex-progress-bar">
                 <div class="ex-progress-tooltip">0:00</div>
-                <div class="ex-progress-current" style="width: 42%;">
+                <div class="ex-progress-current" style="width: 0%;">
                   <div class="ex-progress-handle"></div>
                 </div>
                 <div class="ex-progress-hover-preview"></div>
               </div>
               <div class="ex-time-row">
-                <span class="ex-time">1:46</span>
-                <span class="ex-time">4:09</span>
+                <span class="ex-time">0:00</span>
+                <span class="ex-time">0:00</span>
               </div>
             </div>
 
@@ -528,12 +499,12 @@
               </div>
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   </div>
+
+  
   
   <!-- Upload Progress Box + Toast Stack (same top-right region) -->
   <div class="upload-progress-region" id="uploadProgressRegion">
@@ -567,6 +538,11 @@
     </div>
   </div>
 
+  <!-- Fullscreen Album Art Overlay -->
+  <div id="fullscreenArtOverlay" class="upload-overlay" style="display: none; z-index: 20060; justify-content: center; align-items: center;">
+    <img id="fullscreenArtImg" src="" alt="Album Art" style="width: 750px; height: 750px; max-width: 90vw; max-height: 90vh; object-fit: cover; border-radius: 12px; transition: transform 0.1s ease, transform-origin 0s; cursor: zoom-in; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+    <button class="upload-close-btn" id="fullscreenArtCloseBtn" style="position: absolute; top: 40px; right: 40px; border: none; cursor: pointer; z-index: 20061;"><img src="assets/icons/close.svg" alt="Close"></button>
+  </div>
 </body>
 </html>
 

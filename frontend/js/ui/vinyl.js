@@ -126,12 +126,23 @@ function calculateSnapPosition() {
     UI.vinyl.classList.add("snap-bottom");
 
     if (UI.playerWrapper) {
-      const rect = UI.playerWrapper.getBoundingClientRect();
+      let rect = UI.playerWrapper.getBoundingClientRect();
       const buffer = vw <= 768 ? CONFIG.bufferMobile : CONFIG.bufferDesktop;
-      const safeLeftX = rect.left - buffer;
-      const safeRightX = rect.right + buffer;
+      
+      let playerWidth = rect.width;
+      let playerLeft = rect.left;
+      
+      // Fallback if player is hidden (e.g., in fullscreen mode)
+      if (playerWidth === 0) {
+        playerWidth = Math.min(650, vw * 0.9);
+        playerLeft = (vw - playerWidth) / 2;
+      }
+
+      const playerRight = playerLeft + playerWidth;
+      const safeLeftX = playerLeft - buffer;
+      const safeRightX = playerRight + buffer;
       let currentCenterX = finalLeft + halfWidth;
-      const playerCenterX = rect.left + (rect.width / 2);
+      const playerCenterX = playerLeft + (playerWidth / 2);
 
       if (currentCenterX > safeLeftX && currentCenterX < safeRightX) {
         finalLeft = (currentCenterX < playerCenterX ? safeLeftX : safeRightX) - halfWidth;

@@ -5,7 +5,7 @@
   --text-main: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.7);
   --glass-bg: rgba(0, 0, 0, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.35);
   --blur-amount: 12px;
   --font-family: 'Montserrat', -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
 }

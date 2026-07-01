@@ -9,18 +9,10 @@ export function initFullscreen(recalculateAllMarquees) {
   let wasLibraryOpen = false;
   let wasLibraryBtnActive = false;
 
-  const exLeft = document.querySelector('.ex-left');
-  const exContentRow = document.querySelector('.ex-content-row');
-  const exBottom = document.querySelector('.ex-bottom');
-  const exSeekbarContainer = document.querySelector('.ex-seekbar-container');
-  const exControls = document.querySelector('.ex-controls');
-  const exVolumePanel = document.getElementById('exVolumePanel');
-  const queueHeaderButtons = document.querySelector('.queue-header-buttons');
-  const expandedView = document.querySelector('.expanded-view');
-  const queueHeader = document.querySelector('.queue-header');
+  const collapseImg = collapseFsBtn ? collapseFsBtn.querySelector('img') : null;
 
   function adjustColumnsToFit() {
-    const container = document.querySelector('.ex-right');
+    const container = document.querySelector('#fullscreenView .ex-right');
     if (!container) return;
     const containerWidth = container.clientWidth;
     if (containerWidth <= 0) return;
@@ -44,19 +36,21 @@ export function initFullscreen(recalculateAllMarquees) {
   }
 
   window.addEventListener('resize', () => {
-    if (UI.playerWrapper && UI.playerWrapper.classList.contains('fullscreen-active')) {
+    const fsView = document.getElementById('fullscreenView');
+    if (fsView && fsView.classList.contains('show')) {
       adjustColumnsToFit();
     }
   });
 
   function setFullscreenMode(active) {
-    if (!UI.playerWrapper) return;
+    const fsView = document.getElementById('fullscreenView');
+    if (!fsView) return;
     
     if (active) {
-      UI.playerWrapper.classList.add('transitioning-fullscreen');
-      UI.playerWrapper.classList.add('fullscreen-active');
+      fsView.classList.add('transitioning-fullscreen');
+      fsView.classList.add('show');
       setTimeout(() => {
-        UI.playerWrapper.classList.remove('transitioning-fullscreen');
+        fsView.classList.remove('transitioning-fullscreen');
       }, 500);
       document.body.classList.add('fullscreen-body-active');
       setTimeout(adjustColumnsToFit, 50);
@@ -102,27 +96,15 @@ export function initFullscreen(recalculateAllMarquees) {
       if (bgVideo) {
         bgVideo.classList.remove("blurred");
       }
-      UI.playerWrapper.classList.remove("blurred-player");
-      
-      // Move controls and seekbar to left panel
-      if (exLeft) {
-        if (exSeekbarContainer) exLeft.appendChild(exSeekbarContainer);
-        if (exControls) exLeft.appendChild(exControls);
-        if (exVolumePanel) exLeft.appendChild(exVolumePanel);
-      }
- 
-      // Move buttons out of ex-right to expanded-view wrapper so they stay visible when queue is hidden
-      if (expandedView && queueHeaderButtons) {
-        expandedView.appendChild(queueHeaderButtons);
-      }
+      if (UI.playerWrapper) UI.playerWrapper.classList.remove("blurred-player");
     } else {
-      UI.playerWrapper.classList.add('transitioning-fullscreen');
-      UI.playerWrapper.classList.remove('fullscreen-active');
+      fsView.classList.add('transitioning-fullscreen');
+      fsView.classList.remove('show');
       setTimeout(() => {
-        UI.playerWrapper.classList.remove('transitioning-fullscreen');
+        fsView.classList.remove('transitioning-fullscreen');
       }, 500);
       document.body.classList.remove('fullscreen-body-active');
-      UI.playerWrapper.classList.remove('hide-queue');
+      fsView.classList.remove('hide-queue');
       
       // Restore library view state if it was previously open
       if (wasLibraryOpen) {
@@ -137,25 +119,8 @@ export function initFullscreen(recalculateAllMarquees) {
       }
 
       // Reset collapse icon back to arrow_down.svg
-      if (collapseFsBtn) {
-        const collapseImg = collapseFsBtn.querySelector('img');
-        if (collapseImg) {
-          collapseImg.src = 'assets/icons/arrow_down.svg';
-        }
-      }
- 
-      // Move buttons back inside queue-header
-      if (queueHeader && queueHeaderButtons) {
-        queueHeader.appendChild(queueHeaderButtons);
-      }
-      
-      // Restore controls and seekbar back to bottom panel
-      if (exVolumePanel && exContentRow) {
-        exContentRow.appendChild(exVolumePanel);
-      }
-      if (exBottom) {
-        if (exSeekbarContainer) exBottom.appendChild(exSeekbarContainer);
-        if (exControls) exBottom.appendChild(exControls);
+      if (collapseImg) {
+        collapseImg.src = 'assets/icons/arrow_down.svg';
       }
     }
     
@@ -184,9 +149,9 @@ export function initFullscreen(recalculateAllMarquees) {
   if (collapseFsBtn) {
     collapseFsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const isHidden = UI.playerWrapper.classList.toggle('hide-queue');
+      const fsView = document.getElementById('fullscreenView');
+      const isHidden = fsView ? fsView.classList.toggle('hide-queue') : false;
       
-      const collapseImg = collapseFsBtn.querySelector('img');
       if (collapseImg) {
         collapseImg.src = isHidden ? 'assets/icons/arrow_up.svg' : 'assets/icons/arrow_down.svg';
       }
@@ -207,33 +172,33 @@ export function initFullscreen(recalculateAllMarquees) {
 
     const key = e.key.toLowerCase();
     if (key === 'escape' || key === 'esc') {
-      if (UI.playerWrapper && UI.playerWrapper.classList.contains('fullscreen-active')) {
+      const fsView = document.getElementById('fullscreenView');
+      if (fsView && fsView.classList.contains('show')) {
         e.stopPropagation();
         setFullscreenMode(false);
       }
     } else if (key === 't') {
       e.preventDefault();
-      if (UI.playerWrapper) {
-        if (!UI.playerWrapper.classList.contains('fullscreen-active')) {
-          UI.playerWrapper.classList.toggle('expanded');
-          if (typeof recalculateAllMarquees === 'function') {
-            setTimeout(recalculateAllMarquees, 100);
-            setTimeout(recalculateAllMarquees, 200);
-            setTimeout(recalculateAllMarquees, 350);
-          }
+      const fsView = document.getElementById('fullscreenView');
+      const isFs = fsView && fsView.classList.contains('show');
+      if (UI.playerWrapper && !isFs) {
+        UI.playerWrapper.classList.toggle('expanded');
+        if (typeof recalculateAllMarquees === 'function') {
+          setTimeout(recalculateAllMarquees, 100);
+          setTimeout(recalculateAllMarquees, 200);
+          setTimeout(recalculateAllMarquees, 350);
         }
       }
     } else if (key === 'f') {
       e.preventDefault();
-      if (UI.playerWrapper) {
-        const isFs = UI.playerWrapper.classList.contains('fullscreen-active');
-        if (isFs) {
-          setFullscreenMode(false);
-        } else {
-          // Enter fullscreen only if currently in expanded view
-          if (UI.playerWrapper.classList.contains('expanded')) {
-            setFullscreenMode(true);
-          }
+      const fsView = document.getElementById('fullscreenView');
+      const isFs = fsView && fsView.classList.contains('show');
+      if (isFs) {
+        setFullscreenMode(false);
+      } else {
+        // Enter fullscreen only if currently in expanded view
+        if (UI.playerWrapper && UI.playerWrapper.classList.contains('expanded')) {
+          setFullscreenMode(true);
         }
       }
     }

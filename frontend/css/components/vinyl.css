@@ -94,6 +94,14 @@
 .snap-left.active .btn-6 { --tx: 110px; --ty: 135px; }
 .snap-left.active .btn-7 { --tx: 40px; --ty: 180px; }
 
+/* Blur all menus when vinyl is active on the left */
+body:has(#vinylContainer.active) > div:not(#vinylContainer, .music-player-wrapper, #uploadProgressRegion) {
+  filter: blur(4px) !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  /* transition: filter 0.3s ease; */
+}
+
 .snap-right.active .btn-1 { --tx: -40px; --ty: -180px; }
 .snap-right.active .btn-2 { --tx: -110px; --ty: -135px; }
 .snap-right.active .btn-3 { --tx: -155px; --ty: -70px; }

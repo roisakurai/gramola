@@ -235,7 +235,7 @@
   color: rgba(255, 255, 255, 0.8);
   font-size: 16px;
   cursor: pointer;
-  padding: 6px 12px;
+  /* padding: 6px 12px; */
   border-radius: 18px;
   transition: background 0.2s, color 0.2s;
 }
@@ -394,19 +394,26 @@
 /* --- ALBUM DETAIL VIEW STYLING ---        */
 /* ========================================= */
 
-.album-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  margin-top: 20px;
-  width: 100%;
+.album-header-left {
+    display: flex;
+    align-items: center;
+    /* gap: 16px; */
+    width: 420px !important;
+    max-width: 45vw !important;
+    flex: 0 0 420px !important;
 }
 
-.album-header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.album-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    margin-top: 20px;
+    width: 100%;
+    /* height: 40px; */
+    gap: 80px;
+    flex-direction: row;
+    /* width: 420px !important; */
 }
 
 .album-back-btn {
@@ -476,7 +483,7 @@
   display: flex;
   flex-direction: row;
   gap: 80px;
-  margin-top: 32px;
+  /* margin-top: 32px; */
   width: 100%;
   box-sizing: border-box;
 }
@@ -507,6 +514,8 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  cursor: pointer;
+  -webkit-user-drag: none;
 }
 
 /* Album/Playlist Actions Buttons Row below details */
@@ -799,8 +808,17 @@
   color: var(--primary);
 }
 
+.ad-track-row.playing .queue-info h4 {
+  color: var(--primary);
+}
+
 .ad-track-row.playing .ad-track-num {
   color: var(--primary);
+}
+
+.ad-track-row:hover .queue-play-overlay {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .ad-track-artist {
@@ -892,7 +910,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
   width: 100%;
 }
 
@@ -900,36 +918,52 @@
   width: 320px !important;
 } */
 
-/* --- FULLSCREEN BACK BUTTON --- */
-#fsBackBtn {
+/* --- FULLSCREEN BACK BUTTON & OVERLAY EXIT BUTTONS --- */
+/* #fsBackBtn {
   display: none !important;
+} */
+
+.music-player-wrapper.fullscreen-active #fsBackBtn, #cpCloseBtn, #uploadCloseBtn {
+    display: flex !important;
+    /* position: absolute !important; */
+    /* top: 60px !important; */
+    /* left: 60px !important; */
+    /* right: auto !important; */
+    background: none !important;
+    border: none !important;
+    opacity: 0.7 !important;
+    cursor: pointer !important;
+    /* align-items: center !important; */
+    /* justify-content: center !important; */
+    transition: opacity 0.2s, transform 0.2s !important;
+    padding: 0 !important;
+    /* width: auto !important; */
+    /* height: auto !important; */
+    border-radius: 0 !important;
+    z-index: 10020 !important;
 }
 
 .music-player-wrapper.fullscreen-active #fsBackBtn {
-  display: flex !important;
   position: absolute !important;
-  top: 40px !important;
-  left: 40px !important;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  transition: background 0.2s;
-  padding: 0;
-  z-index: 1000;
+  top: 60px !important;
+  left: 60px !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-/* .music-player-wrapper.fullscreen-active #fsBackBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
-} */
+.music-player-wrapper.fullscreen-active #fsBackBtn:hover,
+#cpCloseBtn:hover,
+#uploadCloseBtn:hover {
+  opacity: 1 !important;
+  transform: scale(1.1) !important;
+}
 
-.music-player-wrapper.fullscreen-active #fsBackBtn img {
-  width: 20px;
-  height: 20px;
+.music-player-wrapper.fullscreen-active #fsBackBtn img,
+#cpCloseBtn img,
+#uploadCloseBtn img {
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain !important;
 }
 
 /* --- PLAYLIST EDIT DETAIL OVERRIDES --- */
@@ -960,7 +994,7 @@
   align-items: center !important;
   justify-content: center !important;
   position: relative !important;
-  max-width: 340px !important;
+  max-width: 320px !important;
   /* margin-top: 10px !important; */
 }
 
@@ -981,6 +1015,7 @@
 
     display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1042,5 +1077,39 @@
   background-color: rgba(255, 255, 255, 0.08) !important;
 } */
 
+.ad-track-row.playlist-row:hover .ad-track-num .num-text {
+  display: block !important;
+}
 
+.ad-track-row.playlist-row:hover .ad-track-num .loader-wrapper {
+  display: flex !important;
+}
 
+.ad-track-row.playlist-row:hover .queue-play-overlay {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.ad-track-title-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ad-track-title-cell .queue-info h4,
+.ad-track-title-cell .queue-info p {
+  margin: 0 !important;
+}
+
+.album-link {
+  cursor: pointer;
+}
+.album-link:hover {
+  text-decoration: underline;
+}
+
+.ad-track-row.playlist-row {
+    height: 62px !important;
+    padding: 8px 12px !important;
+}

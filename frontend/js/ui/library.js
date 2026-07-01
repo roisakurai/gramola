@@ -251,10 +251,15 @@ function formatTotalDuration(songs) {
   const totalSecs = songs.reduce((acc, s) => acc + (Number(s.duration) || 0), 0);
   const hrs = Math.floor(totalSecs / 3600);
   const mins = Math.floor((totalSecs % 3600) / 60);
+  const secs = Math.floor(totalSecs % 60);
+  
   if (hrs > 0) {
-    return `${hrs} hr ${mins} min`;
+    if (mins > 0) {
+      return `${hrs} hr ${mins} min`;
+    }
+    return `${hrs} hr`;
   }
-  return `${mins} min`;
+  return `${mins} min ${secs} sec`;
 }
 
 function adjustPlaylistNameFontSize(nameEl, name) {
@@ -299,7 +304,7 @@ function renderAlbumDetailContent(album) {
     leftPanelHTML = `
       <div class="cp-left">
         <div class="cp-art-wrapper" id="adArtWrapper">
-          <img src="${album.cover}" alt="${album.title}" class="cp-art-img" id="adArtImg">
+          <img src="${album.cover}" alt="${album.title}" class="cp-art-img" id="adArtImg" onclick="if(window.openFullscreenArt) window.openFullscreenArt('${album.cover}')">
           <div class="cp-art-overlay">
             <img src="assets/icons/photo_art.svg" alt="Choose Photo" class="cp-photo-icon">
             <span>Choose photo</span>
@@ -346,7 +351,7 @@ function renderAlbumDetailContent(album) {
     leftPanelHTML = `
       <div class="ad-left">
         <div class="ad-art-wrapper">
-          <img class="ad-art-img" src="${album.cover}" alt="${album.title}">
+          <img class="ad-art-img" src="${album.cover}" alt="${album.title}" onclick="if(window.openFullscreenArt) window.openFullscreenArt('${album.cover}')">
         </div>
         <h3 class="ad-title">${album.title}</h3>
         <p class="ad-artist">${artistText}</p>
@@ -371,28 +376,37 @@ function renderAlbumDetailContent(album) {
     `;
   }
 
+  // Reset and clone header elements to clear old listeners
+  const oldHeaderRow = document.querySelector("#albumHeader .ad-right-header-row");
+  if (oldHeaderRow) {
+    const newHeaderRow = oldHeaderRow.cloneNode(true);
+    oldHeaderRow.parentNode.replaceChild(newHeaderRow, oldHeaderRow);
+  }
+
+  // Clear query and reset defaults
+  albumSearchQuery = "";
+  albumSortMode = "trackno";
+  const searchInputPlaceholder = isPlaylist ? "Search in this playlist" : "Search in this album";
+  const sInput = document.getElementById("albumSearchInput");
+  if (sInput) {
+    sInput.value = "";
+    sInput.placeholder = searchInputPlaceholder;
+  }
+  const cBtn = document.getElementById("albumClearBtn");
+  if (cBtn) cBtn.style.display = "none";
+  const sBtn = document.getElementById("albumSortBtn");
+  if (sBtn) {
+    const sortText = sBtn.querySelector("span");
+    if (sortText) sortText.textContent = "Track No";
+  }
+
   albumDetailView.innerHTML = `
     ${leftPanelHTML}
     <div class="ad-right">
-      <div class="ad-right-header-row">
-        <!-- Search bar on the left -->
-        <div class="library-search-wrapper active" id="albumSearchWrapper">
-        <input type="text" class="library-search-input" id="albumSearchInput" placeholder="Search in this ${isPlaylist ? 'playlist' : 'album'}">
-        <button class="library-clear-btn" id="albumClearBtn" title="Clear"><img src="assets/icons/close.svg" alt="Clear"></button>
-        <button class="lib-action-btn search-btn" id="albumSearchBtn" title="Search"><img src="assets/icons/search.svg" alt="Search"></button>
-        </div>
-        
-        <!-- Sort button on the right -->
-        <button class="lib-sort-btn" id="albumSortBtn">
-          <span>${albumSortMode === 'az' ? 'A-Z' : 'Track No'}</span>
-          <img src="assets/icons/sort_filter.svg" alt="Sort">
-        </button>
-      </div>
-
       <div class="ad-headers">
         <div class="ad-sub-col ad-sub-col-title">Title</div>
         <div class="ad-sub-divider" id="adDividerArtist">|</div>
-        <div class="ad-sub-col ad-sub-col-artist">Artist</div>
+        <div class="ad-sub-col ad-sub-col-artist">Album</div>
         <div class="ad-sub-divider" id="adDividerTime">|</div>
         <div class="ad-sub-col ad-sub-col-time">Time</div>
       </div>
@@ -695,21 +709,63 @@ function renderAlbumTracksOnly() {
     const libItem = LIBRARY_DATA.find(i => i.type === "song" && i.rawSong && i.rawSong.file === track.file);
     const isTrackLiked = libItem ? libItem.isFavorite : false;
 
-    row.innerHTML = `
-      ${numContent}
-      <span class="ad-track-title">${track.title}</span>
-      <span class="ad-track-artist">${track.artist}</span>
-      <span class="ad-track-duration">${durationFormatted}</span>
-      <div class="ad-actions">
-        <button class="action-btn love-btn ${isTrackLiked ? 'liked' : ''}">
-          <img src="assets/icons/${isTrackLiked ? 'love.svg' : 'love_outline.svg'}" alt="Love">
-        </button>
-        <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
-        <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
-      </div>
-    `;
+    if (activeAlbum && activeAlbum.type === "playlist") {
+      // Playlist specific layout (matches queue-item structure)
+      row.classList.add("playlist-row");
+      row.innerHTML = `
+        <span class="ad-track-num">
+          ${innerNum}
+        </span>
+        <div class="ad-track-title-cell">
+          <div class="queue-art-container">
+            <img src="${track.cover}" alt="Art">
+            <div class="queue-play-overlay hover-play-btn">
+              <img src="${playIconSrc}" alt="Play">
+            </div>
+          </div>
+          <div class="queue-info">
+            <h4>${track.title}</h4>
+            <p>${track.artist}</p>
+          </div>
+        </div>
+        <span class="ad-track-artist album-link" ${track.album ? `title="Go to ${track.album}"` : ''}>${track.album || '-'}</span>
+        <span class="ad-track-duration">${durationFormatted}</span>
+        <div class="ad-actions">
+          <button class="action-btn love-btn ${isTrackLiked ? 'liked' : ''}">
+            <img src="assets/icons/${isTrackLiked ? 'love.svg' : 'love_outline.svg'}" alt="Love">
+          </button>
+          <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
+          <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
+        </div>
+      `;
+      
+      const albumLink = row.querySelector('.album-link');
+      if (albumLink && track.album) {
+        albumLink.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (typeof window.openAlbumByName === "function") {
+            window.openAlbumByName(track.album);
+          }
+        });
+      }
+    } else {
+      // Standard Album layout
+      row.innerHTML = `
+        ${numContent}
+        <span class="ad-track-title">${track.title}</span>
+        <span class="ad-track-artist">${track.artist}</span>
+        <span class="ad-track-duration">${durationFormatted}</span>
+        <div class="ad-actions">
+          <button class="action-btn love-btn ${isTrackLiked ? 'liked' : ''}">
+            <img src="assets/icons/${isTrackLiked ? 'love.svg' : 'love_outline.svg'}" alt="Love">
+          </button>
+          <button class="action-btn add-btn"><img src="assets/icons/add_to_queue.svg" alt="Add"></button>
+          <button class="action-btn more-btn"><img src="assets/icons/more.svg" alt="More"></button>
+        </div>
+      `;
+    }
 
-    // Hover play button logic inside ad-track-num
+    // Hover play button logic
     const hoverPlayBtn = row.querySelector(".hover-play-btn");
     if (hoverPlayBtn) {
       hoverPlayBtn.addEventListener("click", (e) => {
@@ -1015,6 +1071,10 @@ export function initLibrary() {
         }
         if (libraryView) {
           libraryView.classList.remove("blurred-library");
+          if (!btn.classList.contains("btn-2")) {
+            libraryView.classList.remove("show");
+            if (libraryBtn) libraryBtn.classList.remove("active");
+          }
         }
         if (!btn.classList.contains("btn-4")) {
           closeGlobalSearch();
@@ -1344,11 +1404,20 @@ export function initLibrary() {
     const libraryView = document.getElementById("libraryView");
     wasLibraryOpenBeforeAlbum = libraryView && libraryView.classList.contains("show");
 
-    // 1. Exit fullscreen mode if active
+    // 1. Exit fullscreen mode if active and collapse expanded view
     const exitFsBtn = document.getElementById("exitFsBtn");
-    const playerWrapper = document.querySelector(".music-player-wrapper");
-    if (exitFsBtn && playerWrapper && playerWrapper.classList.contains("fullscreen-active")) {
+    const fsView = document.getElementById("fullscreenView");
+    if (exitFsBtn && fsView && fsView.classList.contains("show")) {
       exitFsBtn.click();
+    }
+    
+    // Collapse expanded view if active
+    const playerWrapper = document.getElementById("musicPlayerWrapper");
+    if (playerWrapper && playerWrapper.classList.contains("expanded-active")) {
+      playerWrapper.classList.remove("expanded-active");
+      playerWrapper.classList.remove("volume-active");
+      const chevron = document.querySelector(".chevron-icon");
+      if (chevron) chevron.style.transform = "rotate(0deg)";
     }
 
     // 2. Close active vinyl
@@ -1518,6 +1587,18 @@ export function initLibrary() {
         
         const isSong = item.type === "song";
         
+        // Sync play state
+        const currentTrack = window.Player && typeof window.Player.getCurrentTrack === "function" ? window.Player.getCurrentTrack() : null;
+        const isPlayerPlaying = window.Player && typeof window.Player.getIsPlaying === "function" ? window.Player.getIsPlaying() : false;
+        
+        const isPlayingThisItem = isSong && currentTrack && item.rawSong && item.rawSong.file === currentTrack.file;
+        if (isPlayingThisItem) {
+          itemEl.classList.add("playing");
+        }
+        
+        const currentIcon = (isPlayingThisItem && isPlayerPlaying) ? "assets/icons/pause.svg" : "assets/icons/play.svg";
+        const currentAlt = (isPlayingThisItem && isPlayerPlaying) ? "Pause" : "Play";
+
         let timeStr = "";
         if (isSong && item.rawSong && item.rawSong.duration) {
           const m = Math.floor(item.rawSong.duration / 60);
@@ -1529,7 +1610,7 @@ export function initLibrary() {
           <div class="queue-art-container">
             <img src="${item.cover}" alt="Art">
             <div class="queue-play-overlay">
-              <img src="assets/icons/play.svg" alt="Play">
+              <img src="${currentIcon}" alt="${currentAlt}">
             </div>
           </div>
           <div class="queue-info">
@@ -1551,6 +1632,11 @@ export function initLibrary() {
         if (playOverlay) {
           playOverlay.addEventListener("click", (evt) => {
             evt.stopPropagation();
+            if (itemEl.classList.contains("playing") && window.Player && typeof window.Player.togglePlay === "function") {
+              window.Player.togglePlay();
+              // Do not close global search when just pausing/playing
+              return;
+            }
             if (window.Player && typeof window.Player.loadTrack === "function") {
               if (isSong) {
                 window.Player.loadTrack(item.rawSong, [item.rawSong], 0);
@@ -1809,3 +1895,115 @@ function initAlbumResizableColumns() {
   }
 }
 
+
+window.openFullscreenArt = function(url) {
+  const overlay = document.getElementById("fullscreenArtOverlay");
+  const img = document.getElementById("fullscreenArtImg");
+  if (!overlay || !img) return;
+
+  // Ensure custom cursor exists
+  let customCursor = document.getElementById("customZoomCursor");
+  if (!customCursor) {
+    customCursor = document.createElement("div");
+    customCursor.id = "customZoomCursor";
+    customCursor.style.cssText = "display: none; position: fixed; width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.7); pointer-events: none; z-index: 99999; transform: translate(-50%, -50%);";
+    document.body.appendChild(customCursor);
+  }
+
+  img.src = url;
+  overlay.classList.add("show");
+  overlay.style.display = "flex";
+  img.style.transform = "scale(1) translate(0px, 0px)";
+  img.style.cursor = "zoom-in";
+  
+  let isZoomed = false;
+
+  const closeFullscreen = () => {
+    overlay.classList.remove("show");
+    overlay.style.display = "none";
+    isZoomed = false;
+    img.style.transform = "scale(1) translate(0px, 0px)";
+    customCursor.style.display = "none";
+    overlay.style.cursor = "default";
+    img.style.cursor = "zoom-in";
+    document.removeEventListener("keydown", escListener);
+  };
+
+  const escListener = (e) => {
+    if (e.key === "Escape") {
+      closeFullscreen();
+    }
+  };
+  document.addEventListener("keydown", escListener);
+
+  img.onclick = (e) => {
+    e.stopPropagation();
+    isZoomed = !isZoomed;
+    if (isZoomed) {
+      img.style.cursor = "none";
+      overlay.style.cursor = "none";
+      customCursor.style.display = "block";
+      customCursor.style.left = e.clientX + "px";
+      customCursor.style.top = e.clientY + "px";
+
+      const { innerWidth, innerHeight } = window;
+      let moveX = (e.clientX / innerWidth - 0.5) * -100;
+      let moveY = (e.clientY / innerHeight - 0.5) * -100;
+      moveX = Math.max(-16.666, Math.min(16.666, moveX));
+      moveY = Math.max(-16.666, Math.min(16.666, moveY));
+      img.style.transform = `scale(1.5) translate(${moveX}%, ${moveY}%)`;
+    } else {
+      img.style.cursor = "zoom-in";
+      overlay.style.cursor = "default";
+      customCursor.style.display = "none";
+      img.style.transform = "scale(1) translate(0px, 0px)";
+    }
+  };
+
+  overlay.onmousemove = (e) => {
+    if (isZoomed) {
+      const { innerWidth, innerHeight } = window;
+      let moveX = (e.clientX / innerWidth - 0.5) * -100;
+      let moveY = (e.clientY / innerHeight - 0.5) * -100;
+      moveX = Math.max(-16.666, Math.min(16.666, moveX));
+      moveY = Math.max(-16.666, Math.min(16.666, moveY));
+      img.style.transform = `scale(1.5) translate(${moveX}%, ${moveY}%)`;
+
+      // Calculate the screen bounds of the 1.5x scaled image (1200x1200px)
+      // Note: 16.666% of 800px is 133.33px, multiplied by 1.5 scale is 200px translation max.
+      const imgCenterX = (innerWidth / 2) + (moveX / 100 * 1200);
+      const imgCenterY = (innerHeight / 2) + (moveY / 100 * 1200);
+      
+      const leftEdge = imgCenterX - 550;
+      const rightEdge = imgCenterX + 550;
+      const topEdge = imgCenterY - 600;
+      const bottomEdge = imgCenterY + 500;
+
+      // Clamp custom cursor to image bounds
+      const cursorX = Math.max(leftEdge, Math.min(rightEdge, e.clientX));
+      const cursorY = Math.max(topEdge, Math.min(bottomEdge, e.clientY));
+
+      customCursor.style.left = cursorX + "px";
+      customCursor.style.top = cursorY + "px";
+    }
+  };
+
+  // Close when clicking the background overlay
+  overlay.onclick = (e) => {
+    if (e.target === overlay) {
+      if (isZoomed) {
+        // user tidak bisa keluar kecuali zoom out
+        return;
+      }
+      closeFullscreen();
+    }
+  };
+
+  const closeBtn = document.getElementById("fullscreenArtCloseBtn");
+  if (closeBtn) {
+    closeBtn.onclick = (e) => {
+      e.stopPropagation();
+      closeFullscreen();
+    };
+  }
+};

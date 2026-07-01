@@ -32,13 +32,13 @@ export function initPlayer() {
     }
   };
 
-  const exArt = document.querySelector('.large-album-art');
+  const exArts = document.querySelectorAll('.large-album-art');
   const exTitle = document.querySelector('.large-track-info h3');
   const fsTitle = document.querySelector('.large-track-info-fullscreen h3');
   const compactArt = document.querySelector('.compact-view .album-art');
   const compactTitle = document.querySelector('.compact-view .track-title');
 
-  if (exArt) exArt.addEventListener('click', navigateToCurrentTrackAlbum);
+  exArts.forEach(art => art.addEventListener('click', navigateToCurrentTrackAlbum));
   if (exTitle) exTitle.addEventListener('click', navigateToCurrentTrackAlbum);
   if (fsTitle) fsTitle.addEventListener('click', navigateToCurrentTrackAlbum);
   if (compactArt) compactArt.addEventListener('click', navigateToCurrentTrackAlbum);
@@ -206,7 +206,7 @@ export function initPlayer() {
 
         // Transition to symmetrical centered heights and white background
         div.style.transition = 'height 0.8s cubic-bezier(0.25, 1, 0.5, 1), background 0.8s ease';
-        div.style.height = targetHeights[index];
+        div.style.height = targetHeights[index % targetHeights.length];
         div.style.background = '#fff';
       }
     });
@@ -233,6 +233,18 @@ export function initPlayer() {
         img.style.transform = playing ? 'none' : 'translateX(1px)';
       }
     });
+
+    const activeQueueIcons = document.querySelectorAll('.queue-item.playing .queue-play-overlay img');
+    activeQueueIcons.forEach(img => {
+      img.src = playing ? 'assets/icons/pause.svg' : 'assets/icons/play.svg';
+      img.alt = playing ? 'Pause' : 'Play';
+    });
+
+    // const activeSearchIcons = document.querySelectorAll('#globalSearchResults .queue-item.playing .queue-play-overlay img');
+    // activeSearchIcons.forEach(img => {
+    //   img.src = playing ? 'assets/icons/pause.svg' : 'assets/icons/play.svg';
+    //   img.alt = playing ? 'Pause' : 'Play';
+    // });
 
     updateLoaderState(playing);
 
@@ -291,10 +303,10 @@ export function initPlayer() {
   const compactTimeCurrent = document.querySelector('.time-info .time:first-child');
   const compactTimeDuration = document.querySelector('.time-info .time:last-child');
 
-  const exProgressBar = document.querySelector('.ex-progress-bar');
-  const exProgressCurrent = document.querySelector('.ex-progress-current');
-  const exTimeCurrent = document.querySelector('.ex-time-row .ex-time:first-child');
-  const exTimeDuration = document.querySelector('.ex-time-row .ex-time:last-child');
+  const exProgressBars = document.querySelectorAll('.ex-progress-bar');
+  const exProgressCurrents = document.querySelectorAll('.ex-progress-current');
+  const exTimeCurrents = document.querySelectorAll('.ex-time-row .ex-time:first-child');
+  const exTimeDurations = document.querySelectorAll('.ex-time-row .ex-time:last-child');
 
   let isDragging = false;
   let dragPercentage = 0;
@@ -311,19 +323,19 @@ export function initPlayer() {
       compactProgressCurrent.style.width = `${percentage}%`;
       compactProgressCurrent.style.backgroundColor = percentage === 0 ? 'transparent' : 'var(--primary)';
     }
-    if (exProgressCurrent) {
-      exProgressCurrent.style.width = `${percentage}%`;
-      exProgressCurrent.style.backgroundColor = percentage === 0 ? 'transparent' : 'var(--primary)';
-    }
+    exProgressCurrents.forEach(el => {
+      el.style.width = `${percentage}%`;
+      el.style.backgroundColor = percentage === 0 ? 'transparent' : 'var(--primary)';
+    });
 
     const timeStr = formatTime(currentTime);
     if (compactTimeCurrent) compactTimeCurrent.textContent = timeStr;
-    if (exTimeCurrent) exTimeCurrent.textContent = timeStr;
+    exTimeCurrents.forEach(el => el.textContent = timeStr);
 
     if (duration) {
       const durStr = formatTime(duration);
       if (compactTimeDuration) compactTimeDuration.textContent = durStr;
-      if (exTimeDuration) exTimeDuration.textContent = durStr;
+      exTimeDurations.forEach(el => el.textContent = durStr);
     }
   }
 
@@ -349,7 +361,7 @@ export function initPlayer() {
     if (!audio.duration) return;
     const durStr = formatTime(audio.duration);
     if (compactTimeDuration) compactTimeDuration.textContent = durStr;
-    if (exTimeDuration) exTimeDuration.textContent = durStr;
+    exTimeDurations.forEach(el => el.textContent = durStr);
   });
 
   audio.addEventListener('loadedmetadata', () => {
@@ -357,8 +369,10 @@ export function initPlayer() {
     if (!audio.duration) return;
     const durStr = formatTime(audio.duration);
     if (compactTimeDuration) compactTimeDuration.textContent = durStr;
-    if (exTimeDuration) exTimeDuration.textContent = durStr;
+    exTimeDurations.forEach(el => el.textContent = durStr);
   });
+
+  let activeDragContainer = null;
 
   function handleSeekStart(e, container) {
     // Only allow left-clicks (button 0) for mousedown events.
@@ -366,11 +380,12 @@ export function initPlayer() {
       return;
     }
     isDragging = true;
+    activeDragContainer = container;
     handleSeekMove(e, container);
   }
 
   function handleSeekMove(e, container) {
-    if (!isDragging) return;
+    if (!isDragging || !container) return;
     const rect = container.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const percentage = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
@@ -384,6 +399,7 @@ export function initPlayer() {
   function handleSeekEnd() {
     if (!isDragging) return;
     isDragging = false;
+    activeDragContainer = null;
     if (audio.duration) {
       audio.currentTime = (dragPercentage / 100) * audio.duration;
     }
@@ -396,25 +412,21 @@ export function initPlayer() {
   }
 
   // Expanded view seek listeners
-  if (exProgressBar) {
-    exProgressBar.addEventListener('mousedown', (e) => handleSeekStart(e, exProgressBar));
-    exProgressBar.addEventListener('touchstart', (e) => handleSeekStart(e, exProgressBar), { passive: true });
-  }
+  exProgressBars.forEach(bar => {
+    bar.addEventListener('mousedown', (e) => handleSeekStart(e, bar));
+    bar.addEventListener('touchstart', (e) => handleSeekStart(e, bar), { passive: true });
+  });
 
   // Global mouse move & touch move for dragging outside seekbars
   window.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      const isExpanded = UI.playerWrapper && UI.playerWrapper.classList.contains('expanded');
-      const activeContainer = isExpanded ? exProgressBar : compactProgressContainer;
-      if (activeContainer) handleSeekMove(e, activeContainer);
+    if (isDragging && activeDragContainer) {
+      handleSeekMove(e, activeDragContainer);
     }
   });
 
   window.addEventListener('touchmove', (e) => {
-    if (isDragging) {
-      const isExpanded = UI.playerWrapper && UI.playerWrapper.classList.contains('expanded');
-      const activeContainer = isExpanded ? exProgressBar : compactProgressContainer;
-      if (activeContainer) handleSeekMove(e, activeContainer);
+    if (isDragging && activeDragContainer) {
+      handleSeekMove(e, activeDragContainer);
     }
   }, { passive: false });
 
@@ -456,23 +468,24 @@ export function initPlayer() {
     });
   }
 
-  if (exProgressBar) {
-    exProgressBar.addEventListener('mousemove', (e) => {
-      const rect = exProgressBar.getBoundingClientRect();
+  exProgressBars.forEach(bar => {
+    bar.addEventListener('mousemove', (e) => {
+      const rect = bar.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const HP = Math.max(0, Math.min(100, (x / rect.width) * 100));
 
       const duration = audio.duration || 249;
       const hoverSecs = Math.round((HP / 100) * duration);
       const hoverTimeStr = formatTime(hoverSecs);
-      const tooltip = exProgressBar.querySelector('.ex-progress-tooltip');
+      const tooltip = bar.querySelector('.ex-progress-tooltip');
       if (tooltip) {
         tooltip.textContent = hoverTimeStr;
         tooltip.style.left = `${x}px`;
       }
 
-      const currentPercent = parseFloat(exProgressCurrent.style.width || '0');
-      const preview = exProgressBar.querySelector('.ex-progress-hover-preview');
+      const pCurrent = bar.querySelector('.ex-progress-current');
+      const currentPercent = pCurrent ? parseFloat(pCurrent.style.width || '0') : 0;
+      const preview = bar.querySelector('.ex-progress-hover-preview');
       if (preview) {
         if (HP > currentPercent) {
           preview.style.left = `${currentPercent}%`;
@@ -484,11 +497,11 @@ export function initPlayer() {
       }
     });
 
-    exProgressBar.addEventListener('mouseleave', () => {
-      const preview = exProgressBar.querySelector('.ex-progress-hover-preview');
+    bar.addEventListener('mouseleave', () => {
+      const preview = bar.querySelector('.ex-progress-hover-preview');
       if (preview) preview.style.display = 'none';
     });
-  }
+  });
 
   // --- PLAYBACK QUEUE & NEXT/PREV NAVIGATION ---
   const prevButtons = document.querySelectorAll('.prev-btn');
@@ -598,7 +611,11 @@ export function initPlayer() {
   function createQueueItemDOM(track, index, displayNum, isFromUserQueue, userIndex = -1) {
     const item = document.createElement('div');
     item.className = 'queue-item';
-    if (index === currentIndex && !isUserQueuePlaying && !isFromUserQueue) {
+    
+    const isPlayingThisTrack = (index === currentIndex && !isUserQueuePlaying && !isFromUserQueue) || 
+                               (index === currentIndex && isUserQueuePlaying && isFromUserQueue);
+
+    if (isPlayingThisTrack) {
       item.classList.add('playing');
     }
     
@@ -612,19 +629,22 @@ export function initPlayer() {
       }
     }
 
+    const currentIcon = (isPlayingThisTrack && isPlaying) ? 'assets/icons/pause.svg' : 'assets/icons/play.svg';
+    const currentAlt = (isPlayingThisTrack && isPlaying) ? 'Pause' : 'Play';
+
     item.innerHTML = `
       <span class="queue-number">${displayNum}</span>
       <div class="queue-art-container">
         <img src="${track.cover}" alt="Art">
         <div class="queue-play-overlay">
-          <img src="assets/icons/play.svg" alt="Play">
+          <img src="${currentIcon}" alt="${currentAlt}">
         </div>
       </div>
       <div class="queue-info">
         <h4>${track.title}</h4>
         <p>${track.artist}</p>
       </div>
-      <span class="queue-album">${track.album || ''}</span>
+      <span class="queue-album" ${track.album ? 'style="cursor: pointer;" title="Go to Album"' : ''}>${track.album || ''}</span>
       <span class="queue-time">${durationStr}</span>
       <div class="queue-actions">
         <button class="action-btn love-btn ${isTrackLiked ? 'liked' : ''}"><img src="assets/icons/${isTrackLiked ? 'love.svg' : 'love_outline.svg'}" alt="Love"></button>
@@ -633,14 +653,31 @@ export function initPlayer() {
       </div>
     `;
     
+    const albumEl = item.querySelector('.queue-album');
+    if (albumEl && track.album) {
+      albumEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof window.openAlbumByName === "function") {
+          window.openAlbumByName(track.album);
+        }
+      });
+      // Add hover effect
+      albumEl.addEventListener('mouseover', () => albumEl.style.textDecoration = 'underline');
+      albumEl.addEventListener('mouseout', () => albumEl.style.textDecoration = 'none');
+    }
+
     const playOverlay = item.querySelector('.queue-play-overlay');
     if (playOverlay) {
       playOverlay.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (isFromUserQueue) {
-          playUserQueueTrack(userIndex);
+        if (item.classList.contains('playing')) {
+          togglePlayPause();
         } else {
-          loadTrack(track, currentQueue, index, true, false);
+          if (isFromUserQueue) {
+            playUserQueueTrack(userIndex);
+          } else {
+            loadTrack(track, currentQueue, index, true, false);
+          }
         }
       });
     }
@@ -650,7 +687,7 @@ export function initPlayer() {
         e.preventDefault();
       }
       
-      const queueListContainer = document.querySelector('.queue-list');
+      const queueListContainer = item.closest('.queue-list');
       if (!queueListContainer) return;
       const allItems = Array.from(queueListContainer.querySelectorAll('.queue-item'));
       const itemIndex = allItems.indexOf(item);
@@ -723,14 +760,16 @@ export function initPlayer() {
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', 'queue-drag');
 
-      const queueList = document.querySelector('.queue-list');
+      const queueList = item.closest('.queue-list');
       // If this item is part of an active multi-selection, drag all active items
       let dragGroup;
-      if (item.classList.contains('active')) {
+      if (queueList && item.classList.contains('active')) {
         dragGroup = Array.from(queueList.querySelectorAll('.queue-item.active'));
-      } else {
+      } else if (queueList) {
         // Single item drag — clear other active highlights
         queueList.querySelectorAll('.queue-item').forEach(el => el.classList.remove('active'));
+        dragGroup = [item];
+      } else {
         dragGroup = [item];
       }
       // Mark all as dragging (deferred so ghost image is captured first)
@@ -766,7 +805,8 @@ export function initPlayer() {
       e.stopPropagation();
       item.classList.remove('drag-over-top', 'drag-over-bottom');
 
-      const queueList = document.querySelector('.queue-list');
+      const queueList = item.closest('.queue-list');
+      if (!queueList) return;
       const draggedEls = Array.from(queueList.querySelectorAll('.queue-item.dragging'));
       if (draggedEls.length === 0 || draggedEls.includes(item)) return;
 
@@ -796,46 +836,60 @@ export function initPlayer() {
   }
 
   function renderQueue() {
-    const queueListContainer = document.querySelector('.queue-list');
-    if (!queueListContainer) return;
-    
-    queueListContainer.innerHTML = '';
-    
-    const headerTitle = document.getElementById("queueHeaderTitle");
-    
-    if (userQueue.length > 0) {
-      // Header shows "Next in queue"
-      if (headerTitle) headerTitle.textContent = "Next in queue";
-      
-      // Render user queue items directly (no section label inside list)
-      let userDisplayNum = 1;
-      userQueue.forEach((track, index) => {
-        const item = createQueueItemDOM(track, index, userDisplayNum, true, index);
-        queueListContainer.appendChild(item);
-        userDisplayNum++;
-      });
-      
-      // Divider before original playlist — must NOT be draggable
-      const dividerHeader = document.createElement("div");
-      dividerHeader.className = "queue-section-header";
-      dividerHeader.innerHTML = `Next from : <span class="clickable-album-link">${currentSourceName || "Local Library"}</span>`;
-      dividerHeader.setAttribute('draggable', 'false');
-      dividerHeader.setAttribute('data-section-divider', 'true');
-      queueListContainer.appendChild(dividerHeader);
+    const queueListContainers = document.querySelectorAll('.queue-list');
+    if (queueListContainers.length === 0) return;
 
-      const albumLink = dividerHeader.querySelector(".clickable-album-link");
-      if (albumLink) {
-        albumLink.addEventListener("click", (e) => {
-          e.stopPropagation();
-          if (typeof window.openAlbumByName === "function") {
-            window.openAlbumByName(currentSourceName);
-          }
+    queueListContainers.forEach(queueListContainer => {
+      queueListContainer.innerHTML = '';
+      
+      if (userQueue.length > 0) {
+        let userDisplayNum = 1;
+        userQueue.forEach((track, index) => {
+          const item = createQueueItemDOM(track, index, userDisplayNum, true, index);
+          queueListContainer.appendChild(item);
+          userDisplayNum++;
         });
+        
+        const dividerHeader = document.createElement("div");
+        dividerHeader.className = "queue-section-header";
+        const prefix = isRepeat ? "Repeating track from" : "Next from";
+        dividerHeader.innerHTML = `${prefix} : <span class="clickable-album-link">${currentSourceName || "Local Library"}</span>`;
+        dividerHeader.setAttribute('draggable', 'false');
+        dividerHeader.setAttribute('data-section-divider', 'true');
+        queueListContainer.appendChild(dividerHeader);
+
+        const albumLink = dividerHeader.querySelector(".clickable-album-link");
+        if (albumLink) {
+          albumLink.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (typeof window.openAlbumByName === "function") {
+              window.openAlbumByName(currentSourceName);
+            }
+          });
+        }
       }
-    } else {
-      // No user queue — header shows source name
-      if (headerTitle) {
-        headerTitle.innerHTML = `Next from : <span class="clickable-album-link">${currentSourceName || "Local Library"}</span>`;
+
+      let displayNum = 1;
+      currentQueue.forEach((track, index) => {
+        if (isRepeat) {
+          if (index !== currentIndex) return;
+        } else {
+          if (index <= currentIndex) return;
+        }
+        
+        const item = createQueueItemDOM(track, index, displayNum, false);
+        queueListContainer.appendChild(item);
+        displayNum++;
+      });
+    });
+
+    const headerTitles = document.querySelectorAll("#queueHeaderTitle, .queue-header-title");
+    headerTitles.forEach(headerTitle => {
+      if (userQueue.length > 0) {
+        headerTitle.textContent = "Next in queue";
+      } else {
+        const prefix = isRepeat ? "Repeating track from" : "Next from";
+        headerTitle.innerHTML = `${prefix} : <span class="clickable-album-link">${currentSourceName || "Local Library"}</span>`;
         const albumLink = headerTitle.querySelector(".clickable-album-link");
         if (albumLink) {
           albumLink.addEventListener("click", (e) => {
@@ -846,20 +900,6 @@ export function initPlayer() {
           });
         }
       }
-    }
-    
-    // Render normal playlist queue
-    let displayNum = 1;
-    currentQueue.forEach((track, index) => {
-      if (isRepeat) {
-        if (index !== currentIndex) return;
-      } else {
-        if (index <= currentIndex) return;
-      }
-      
-      const item = createQueueItemDOM(track, index, displayNum, false);
-      queueListContainer.appendChild(item);
-      displayNum++;
     });
   }
 
@@ -956,7 +996,7 @@ export function initPlayer() {
       isPlayingStarted = false;
       updateProgressUI(0, 0, 0);
       if (compactTimeDuration) compactTimeDuration.textContent = "0:00";
-      if (exTimeDuration) exTimeDuration.textContent = "0:00";
+      exTimeDurations.forEach(el => el.textContent = "0:00");
     }
   }
 
@@ -1180,7 +1220,7 @@ export function initPlayer() {
     if (fsArtist) {
       fsArtist.textContent = track.artist;
     }
-    if (exArt) exArt.src = track.cover;
+    document.querySelectorAll('.large-album-art').forEach(el => el.src = track.cover);
 
     // Apply marquee checks after browser layout update
     setTimeout(recalculateAllMarquees, 50);
@@ -1188,10 +1228,10 @@ export function initPlayer() {
     if (isPlayingStarted) {
       const durStr = formatTime(track.duration || 0);
       if (compactTimeDuration) compactTimeDuration.textContent = durStr;
-      if (exTimeDuration) exTimeDuration.textContent = durStr;
+      exTimeDurations.forEach(el => el.textContent = durStr);
     } else {
       if (compactTimeDuration) compactTimeDuration.textContent = "0:00";
-      if (exTimeDuration) exTimeDuration.textContent = "0:00";
+      exTimeDurations.forEach(el => el.textContent = "0:00");
     }
   }
 
